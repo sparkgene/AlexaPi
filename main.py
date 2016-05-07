@@ -16,8 +16,8 @@ from memcache import Client
 
 #Settings
 # button = 18 #GPIO Pin with button connected
-lights = [24, 25] # GPIO Pins with LED's conneted
-device = "plughw:1" # Name of your microphone/soundcard in arecord -L
+#lights = [24, 25] # GPIO Pins with LED's conneted
+device = "plughw:1,0" # Name of your microphone/soundcard in arecord -L
 
 #Setup
 recorded = False
@@ -27,7 +27,7 @@ path = os.path.realpath(__file__).rstrip(os.path.basename(__file__))
 
 # audio input
 audio = ""
-inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, device)
+inp = None
 
 def internet_on():
     print "Checking Internet Connection"
@@ -57,6 +57,7 @@ def gettoken():
 
 
 def alexa():
+	global audio	
 	# GPIO.output(24, GPIO.HIGH)
 	url = 'https://access-alexa-na.amazon.com/v1/avs/speechrecognizer/recognize'
 	headers = {'Authorization' : 'Bearer %s' % gettoken()}
@@ -110,61 +111,55 @@ def alexa():
 
 # need to use this with thread.
 def async_recording():
-    l, data = inp.read()
-    if l:
-    	audio += data
-    while recorded == True:
-        print "Wait"
+	global recorded
+	time.sleep(5)
+	recorded = False 
+
 
 def start():
+	global inp
+	global audio
+	global recorded
 	while True:
-        inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, device)
-        inp.setchannels(1)
-        inp.setrate(16000)
-        inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
-        inp.setperiodsize(500)
-        audio = ""
-        l, data = inp.read()
-        if l:
-        	audio += data
-        recorded = True
+        	if inp == None:
+			inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, device)
+        		inp.setchannels(1)
+        		inp.setrate(16000)
+        		inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
+        		inp.setperiodsize(500)
+        		audio = ""
+        		recorded = True
+		
+       		os.system('mpg123 -q {}record_now.mp3'.format(path))
+		
+        	# recording(asyncronous)
+        	recording_thread = threading.Thread(target=async_recording)
+        	recording_thread.start()
+			
+	      	while recorded == True:
+        		l, data = inp.read()
+        		if l:
+        			audio += data
+		recording_thread = None	
+		        	
+		# os.system('arecord -d 3 -D {} {}recording.wav'.format(device,path))
+		os.system('mpg123 -q {}request_now.mp3'.format(path))
+		
+        	# call alexa
+        	rf = open(path+'recording.wav', 'w')
+        	rf.write(audio)
+        	rf.close()
+        	inp = None
 
-        os.system('mpg123 -q {}record_now.mp3'.format(path))
-
-        # recording(asyncronous)
-        recording_thread = threading.Thread(target=async_recording)
-        recording_thread.start()
-
-        time.sleep(5)
-
-        recorded = False
-        recording_thread.join(timeout=0.1)
-
-        os.system('mpg123 -q {}request_now.mp3'.format(path))
-
-        # call alexa
-        rf = open(path+'recording.wav', 'w')
-        rf.write(audio)
-        rf.close()
-        inp = None
-
-        alexa()
-
-        time.sleep(10)
+        	# os.system('aplay {}recording.wav'.format(path))
+		
+        	alexa()
+		
+       		time.sleep(10)
 
 if __name__ == "__main__":
-	# GPIO.setwarnings(False)
-	# GPIO.cleanup()
-	# GPIO.setmode(GPIO.BCM)
-	# GPIO.setup(lights, GPIO.OUT)
-	# GPIO.output(lights, GPIO.LOW)
 	while internet_on() == False:
 		print "."
 	token = gettoken()
 	os.system('mpg123 -q {}1sec.mp3 {}hello.mp3'.format(path, path))
-	for x in range(0, 3):
-		time.sleep(.1)
-		# GPIO.output(24, GPIO.HIGH)
-		time.sleep(.1)
-		# GPIO.output(24, GPIO.LOW)
 	start()
