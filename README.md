@@ -1,16 +1,16 @@
 # AlexaPi
- 
+
 ---
- 
+
 ### Contributors
- 
+
 * Sam Machin
- 
+
 ---
- 
+
 This is the code needed to Turn a Raspberry Pi into a client for Amazon's Alexa service, I have developed this against the Pi 2 but I see no reason it shouldn't run on the other models. Feedback welcome.
 ---
- 
+
 ### Requirements
 
 You will need:
@@ -18,8 +18,6 @@ You will need:
 * An SD Card with a fresh install of Raspbian (tested against build 2015-11-21 Jessie)
 * An External Speaker with 3.5mm Jack
 * A USB Sound Dongle and Microphone
-* A push to make button connected between GPIO 18 and GND
-* (Optionally) A Dual colour LED (or 2 signle LEDs) Connected to GPIO 24 & 25
 
 
 Next you need to obtain a set of credentials from Amazon to use the Alexa Voice service, login at http://developer.amazon.com and Goto Alexa then Alexa Voice Service
@@ -41,15 +39,33 @@ Follow instructions....
 
 Enjoy :)
 
+### Specification
+  When you ran main.py, your PI say "hello" if authentication are succeeded to AVS.
+  Next, PI say "ROKUON SHITEIMASU". That means "I am recording your voice."
+  This window size are 5 seconds. you have to say any words(or centences) in 5 seconds.
+  Next, PI say "SOUSHIN SHITEIMASU". That means "I am sending to your words to AVS"
+  Your PI return some responses if your words can accept to Alexa.
+
+  This cycle is infinite.
+  If you want to stop this program, you have to log in to PI, and CTRL+D.
+  (now, we are improving...)
+
+### Usage:
+  Default setting is manually. So you have to log in to the RaspberryPI(also SSH) and run command below.
+
+  "python main.py"
+
+  To run automatically, you can add above command to /etc/rc.d/rc.local
+
 ### Issues/Bugs etc.
 
 If your alexa isn't running on startup you can check /var/log/alexa.log for errrors.
 
-If the error is complaining about alsaaudio you may need to check the name of your soundcard input device, use 
-`arecord -L` 
-The device name can be set in the settings at the top of main.py 
+If the error is complaining about alsaaudio you may need to check the name of your soundcard input device, use
+`arecord -L`
+The device name can be set in the settings at the top of main.py
 
-You may need to adjust the volume and/or input gain for the microphone, you can do this with 
+You may need to adjust the volume and/or input gain for the microphone, you can do this with
 `alsamixer`
 
 ### Advanced Install
@@ -76,5 +92,3 @@ The auth token is generated from the request_token the auth_token is then stored
 
 
 ---
- 
-
