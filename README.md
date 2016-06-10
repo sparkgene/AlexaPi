@@ -1,5 +1,7 @@
 # AlexaPi
 
+![Alexa_sample](https://raw.github.com/wiki/jaws-ug-kobe/AlexaPi/images/head_readme.png)
+
 ---
 
 ### Contributors
