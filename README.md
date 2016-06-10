@@ -1,8 +1,6 @@
 # AlexaPi
 
-![Alexa_sample](https://raw.github.com/wiki/jaws-ug-kobe/AlexaPi/images/head_readme.png)
-
-https://www.youtube.com/watch?v=vizNdRTXK90&feature=youtu.be
+[![Alexa_sample](https://raw.github.com/wiki/jaws-ug-kobe/AlexaPi/images/head_readme.png)](https://www.youtube.com/watch?v=vizNdRTXK90&feature=youtu.be)
 
 ---
 
