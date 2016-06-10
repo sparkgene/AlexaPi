@@ -50,12 +50,19 @@ Enjoy :)
   If you want to stop this program, you have to log in to PI, and CTRL+D.
   (now, we are improving...)
 
+### Sample movie
+  https://www.youtube.com/watch?v=vizNdRTXK90&feature=youtu.be
+
 ### Usage:
   Default setting is manually. So you have to log in to the RaspberryPI(also SSH) and run command below.
 
   "python main.py"
 
   To run automatically, you can add above command to /etc/rc.d/rc.local
+
+### How to use this repo
+  Check the movie:
+  https://www.youtube.com/watch?v=frH9HaQTFL8
 
 ### Issues/Bugs etc.
 
