@@ -60,7 +60,11 @@ Enjoy :)
 
   "python main.py"
 
+<<<<<<< HEAD
   To run automatically, you can add above command to /etc/rc.d/rc.local
+=======
+  To run automatically, you can add above command to /etc/rc.local
+>>>>>>> bfecf28967c95ecdce4fd97aecb09a67b284386d
 
 ### How to use this repo
   Check the movie:
