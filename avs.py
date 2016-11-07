@@ -23,7 +23,39 @@ class Avs:
     r = conn.get_response()
     data = r.read()
     print(data)
+    self.connection = conn
     return conn
+
+  def recognize(self):
+    boundary_name = 'recognize-term'
+    header = self.__header(boundary_name)
+
+    # build and request first message
+    def recognize_first_message():
+      message = {
+          "event": {
+              "header": {
+                  "namespace": "SpeechRecognizer",
+                  "name": "Recognize",
+                  "messageId": "1",
+                  "dialogRequestId": "1"
+              },
+              "payload": {
+                  "profile": "CLOSE_TALK",
+                  "format": "AUDIO_L16_RATE_16000_CHANNELS_1"
+              }
+          }
+      }
+      return message
+
+    first_part_header = self.__message_header_first(boundary_name)
+    first_part_body = self.__message_body_second([], recognize_first_message())
+    second_part_header = self.__message_header_second(boundary_name)
+    second_part_body = self.__message_body_second()
+
+    body = first_part_header + '\n\n' first_part_body + '\n\n' + second_part_header + '\n\n' + second_part_body + '\n\n' + self.__end_boundary()
+    r = self.conn.request(method="POST", url=self.__interface("events"), headers=header, body=body)
+    print(r)
 
   def close(self, conn):
     conn.close()
@@ -79,11 +111,10 @@ class Avs:
     message += 'Content-type: application/octet-stream; charset=audio\n'
     return message
 
-  def __message_body_second(self, contexts, event):
-    message = {}
-    message["context"] = contexts
-    message["event"] = event
-    return message
+  def __message_body_second(self, file):
+  	with open('recording.wav') as inf:
+  		data = inf.read()
+    return data
 
   def __begin_boundary(self, name):
     return '\n--' + name + '\n'
@@ -110,5 +141,6 @@ HttpHeaders = {
 }
 
 avs = Avs()
-conn = avs.establish()
-conn.close()
+avs.establish()
+avs.recognize()
+avs.close()
