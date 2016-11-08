@@ -4,27 +4,62 @@
 import requests
 from hyper import HTTP20Connection
 import json
+import threading
 from creds import *
 
 
 class Avs:
   ENDPOINT = 'avs-alexa-na.amazon.com'
 
-  def establish(self):
-    conn = HTTP20Connection(host=self.ENDPOINT, secure=True, force_proto='h2')
-    boundary_name = 'synchronization-term'
-    header = { "Authorization": "Bearer %s" % (self.gettoken()) }
-    print(self.__interface("directives") + '\n' + json.dumps(header))
-    conn.request(method="GET", url=self.__interface("directives"), headers=header)
+  def __init__(self):
+    self.downstram_stop_signal = threading.Event()
+    self.connection = HTTP20Connection(host=self.ENDPOINT, secure=True, force_proto='h2', enable_push=True)
+    self.establish_downstream()
+    self.synchronize_to_avs()
 
+  def establish_downstream(self):
+    header = {"Authorization": "Bearer %s" % (self.gettoken())}
+    self.downstream_id = self.connection.request(method="GET", url=self.__interface("directives"), headers=header)
+    downstream_response = self.connection.get_response(downstream_id)
+    if downstream_response.status != 200:
+      raise NameError("Bad downstream response %s" % (downstream_response.status))
+    self.downstream_boundary = get_downstream_boundary(response)
+    downstream_polling = threading.Thread(target=self.downstram_polling_thread)
+    downstream_polling.start()
+
+  def synchronize_to_avs(self):
+    boundary_name = 'synchronization-term'
     header = self.__header(boundary_name)
-    print(self.__interface("events") + '\n' + json.dumps(header) + '\n' + self.__synchronize_message(boundary_name))
-    conn.request(method="POST", url=self.__interface("events"), headers=header, body=self.__synchronize_message(boundary_name))
-    r = conn.get_response()
-    data = r.read()
-    print(data)
-    self.connection = conn
-    return conn
+    stream_id = conn.request(method="POST", url=self.__interface("events"), headers=header, body=self.__synchronize_message(boundary_name))
+    res = conn.get_response(stream_id)
+    if res.status != 204:
+      raise NameError("Bad synchronize response %s" % (res.status))
+
+  def get_downstream_boundary(self, response):
+    content = response.headers.pop('content-type')[0]
+    b_start = content.find(b'boundary=')
+    b_end = content[b_start:].find(b';')
+    if b_end == -1:
+        boundary = content[b_start+9:]
+    else:
+        boundary = content[b_start+9:b_start+b_end]
+    return boundary
+
+  def downstram_polling_thread(self):
+    downstream = self.connection.streams[self.downstream_id]
+
+    while self.downstram_stop_signal.is_set():
+      if len(downstream.data) > 1:
+        new_data, actual_stream.data = read_from_downstream(self.downstream_boundary, actual_stream.data)
+        if len(new_data) > 0:
+          print("response:" + new_data)
+          # message = parse_data(new_data, self.downstream_boundary)
+          # self.process_response_handle(message)
+      time.sleep(0.5)
+
+  def close(self):
+    self.downstram_stop_signal.set()
+    self.connection.close()
 
   def recognize(self):
     boundary_name = 'recognize-term'
@@ -33,7 +68,6 @@ class Avs:
     # build and request first message
     def recognize_first_message():
       message = {
-          "event": {
               "header": {
                   "namespace": "SpeechRecognizer",
                   "name": "Recognize",
@@ -44,7 +78,6 @@ class Avs:
                   "profile": "CLOSE_TALK",
                   "format": "AUDIO_L16_RATE_16000_CHANNELS_1"
               }
-          }
       }
       return message
 
@@ -54,7 +87,7 @@ class Avs:
     second_part_body = self.__message_body_second()
 
     body = first_part_header + '\n\n' first_part_body + '\n\n' + second_part_header + '\n\n' + second_part_body + '\n\n' + self.__end_boundary()
-    r = self.conn.request(method="POST", url=self.__interface("events"), headers=header, body=body)
+    r = self.conn.request(method="GET", url=self.__interface("events"), headers=header, body=body)
     print(r)
 
   def close(self, conn):
@@ -107,8 +140,8 @@ class Avs:
   def __message_header_second(self, name):
     message = ''
     message += self.__begin_boundary(name)
-    message += 'Content-Disposition: form-data; name="metadata\n'
-    message += 'Content-type: application/octet-stream; charset=audio\n'
+    message += 'Content-Disposition: form-data; name="audio\n'
+    message += 'Content-type: application/octet-stream\n'
     return message
 
   def __message_body_second(self, file):
