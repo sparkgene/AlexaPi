@@ -12,7 +12,7 @@ import time
 class Avs:
   ENDPOINT = 'avs-alexa-na.amazon.com'
 
-  def __init__(self):
+  def __init__(self, audio_player_callback):
 
     def create_connection():
       self.connection = HTTP20Connection(host=self.ENDPOINT, secure=True, force_proto='h2', enable_push=True)
@@ -24,7 +24,7 @@ class Avs:
       downstream_response = self.connection.get_response(self.downstream_id)
       if downstream_response.status != 200:
         raise NameError("Bad downstream response %s" % (downstream_response.status))
-      self.downstream_boundary = self.get_downstream_boundary(downstream_response)
+      self.downstream_boundary = self.get_boundary(downstream_response)
       print("[STATE:INIT] downstream established. bounday=%s" % (self.downstream_boundary))
 
       self.downstream_stop_signal = threading.Event()
@@ -41,12 +41,12 @@ class Avs:
         raise NameError("Bad synchronize response %s" % (res.status))
       print("[STATE:INIT] synchronize to AVS succeeded.")
 
-    self.create_connection()
-    self.establish_downstream()
-    self.synchronize_to_avs()
-    self.audio_palyer_callback = None
+    create_connection()
+    establish_downstream()
+    synchronize_to_avs()
+    self.audio_player_callback = audio_player_callback 
 
-  def get_downstream_boundary(self, response):
+  def get_boundary(self, response):
     content = response.headers.pop('content-type')[0]
     b_start = content.find(b'boundary=')
     b_end = content[b_start:].find(b';')
@@ -103,27 +103,37 @@ class Avs:
     second_part_body = self.__message_body_second("recording.wav")
 
     body = first_part_header + '\n' + json.dumps(first_part_body) + '\n' + second_part_header + '\n' + second_part_body + self.__end_boundary(boundary_name)
-    print("[STATE:DEBUG]")
-    print(body)
     stream_id = self.connection.request(method="GET", url=self.__interface("events"), headers=header, body=body)
+    print(stream_id)
     res = self.connection.get_response(stream_id)
-    if res.status != 200:
+    if res.status != 200 and res.status != 204:
       print(res.read())
       raise NameError("Bad recognize response %s" % (res.status))
-    print("[STATE:RECOGNIZE] send event.")
-    response_data = res.read()
-    print(response_data)
+    
+    if res.status == 204:
+	print("[STATE:RECOGNIZE] no content")
+        return
 
-    audio = self.pick_up_audio_from_directives(response_data)
+    # status = 200
+    print("[STATE:RECOGNIZE] send event.")
+    boundary = self.get_boundary(res)
+    response_data = res.read()
+
+    audio = self.pick_up_audio_from_directives(boundary, response_data)
     self.play(audio)
 
   def play(self, audio):
-    if self.audio_palyer_callback is not None:
-      self.audio_palyer_callback(audio)
+    if self.audio_player_callback is not None:
+      self.audio_player_callback(audio)
+    else:
+      print("[STATE:RECOGNIZE] play device not assigned")
 
-  def pick_up_audio_from_directives(self, directive_response):
-    chunks = directive_response.split('\r\n')
-    return chunks[8]
+  def pick_up_audio_from_directives(self, boundary, data):
+    chunks = data.split('--' + boundary)
+    content_and_attachment = [p for p in chunks if p != b'--' and p != b'--\r\n' and len(p) != 0 and p != '\r\n']
+    if len(content_and_attachment) != 2:
+      raise NameError("Bad response data")
+    return content_and_attachment[1].split('\r\n\r\n')[1].rstrip('\r\n')
 
   def close(self):
     self.downstream_stop_signal.set()
