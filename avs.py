@@ -6,38 +6,45 @@ from hyper import HTTP20Connection
 import json
 import threading
 from creds import *
+import time
 
 
 class Avs:
   ENDPOINT = 'avs-alexa-na.amazon.com'
 
   def __init__(self):
-    self.downstram_stop_signal = threading.Event()
-    self.connection = HTTP20Connection(host=self.ENDPOINT, secure=True, force_proto='h2', enable_push=True)
-    print("[STATE:INIT] Connection created.")
+
+    def create_connection():
+      self.connection = HTTP20Connection(host=self.ENDPOINT, secure=True, force_proto='h2', enable_push=True)
+      print("[STATE:INIT] Connection created.")
+
+    def establish_downstream():
+      header = {"Authorization": "Bearer %s" % (self.gettoken())}
+      self.downstream_id = self.connection.request(method="GET", url=self.__interface("directives"), headers=header)
+      downstream_response = self.connection.get_response(self.downstream_id)
+      if downstream_response.status != 200:
+        raise NameError("Bad downstream response %s" % (downstream_response.status))
+      self.downstream_boundary = self.get_downstream_boundary(downstream_response)
+      print("[STATE:INIT] downstream established. bounday=%s" % (self.downstream_boundary))
+
+      self.downstream_stop_signal = threading.Event()
+      downstream_polling = threading.Thread(target=self.downstram_polling_thread)
+      downstream_polling.start()
+      print("[STATE:INIT] downstream polling start")
+
+    def synchronize_to_avs():
+      boundary_name = 'synchronization-term'
+      header = self.__header(boundary_name)
+      stream_id = self.connection.request(method="POST", url=self.__interface("events"), headers=header, body=self.__synchronize_message(boundary_name))
+      res = self.connection.get_response(stream_id)
+      if res.status != 204:
+        raise NameError("Bad synchronize response %s" % (res.status))
+      print("[STATE:INIT] synchronize to AVS succeeded.")
+
+    self.create_connection()
     self.establish_downstream()
     self.synchronize_to_avs()
-
-  def establish_downstream(self):
-    header = {"Authorization": "Bearer %s" % (self.gettoken())}
-    self.downstream_id = self.connection.request(method="GET", url=self.__interface("directives"), headers=header)
-    downstream_response = self.connection.get_response(self.downstream_id)
-    if downstream_response.status != 200:
-      raise NameError("Bad downstream response %s" % (downstream_response.status))
-    self.downstream_boundary = self.get_downstream_boundary(downstream_response)
-    print("[STATE:INIT] downstream established. bounday=%s" % (self.downstream_boundary))
-    downstream_polling = threading.Thread(target=self.downstram_polling_thread)
-    downstream_polling.start()
-    print("[STATE:INIT] downstream polling start")
-
-  def synchronize_to_avs(self):
-    boundary_name = 'synchronization-term'
-    header = self.__header(boundary_name)
-    stream_id = self.connection.request(method="POST", url=self.__interface("events"), headers=header, body=self.__synchronize_message(boundary_name))
-    res = self.connection.get_response(stream_id)
-    if res.status != 204:
-      raise NameError("Bad synchronize response %s" % (res.status))
-    print("[STATE:INIT] synchronize to AVS succeeded.")
+    self.audio_palyer_callback = None
 
   def get_downstream_boundary(self, response):
     content = response.headers.pop('content-type')[0]
@@ -50,30 +57,25 @@ class Avs:
     return boundary
 
   def downstram_polling_thread(self):
+
+    def read_from_downstream(boundary, data):
+      matching_indices = [n for n, chunk in enumerate(data) if chunk.endswith(boundary)]
+      if not matching_indices:
+          return b'', data
+      boundary_index = matching_indices[-1]
+
+      new_data = data[:boundary_index+1]
+      data = data[boundary_index+1:]
+      return b''.join(new_data), data
+
     downstream = self.connection.streams[self.downstream_id]
 
-    while self.downstram_stop_signal.is_set():
+    while self.downstream_stop_signal.is_set():
       if len(downstream.data) > 1:
         new_data, downstream.data = read_from_downstream(self.downstream_boundary, downstream.data)
         if len(new_data) > 0:
           print("response:" + new_data)
-          # message = parse_data(new_data, self.downstream_boundary)
-          # self.process_response_handle(message)
       time.sleep(0.5)
-
-  def read_from_downstream(boundary, data):
-    matching_indices = [n for n, chunk in enumerate(data) if chunk.endswith(boundary)]
-    if not matching_indices:
-        return b'', data
-    boundary_index = matching_indices[-1]
-
-    new_data = data[:boundary_index+1]
-    data = data[boundary_index+1:]
-    return b''.join(new_data), data
-
-  def close(self):
-    self.downstram_stop_signal.set()
-    self.connection.close()
 
   def recognize(self):
     boundary_name = 'recognize-term'
@@ -109,10 +111,23 @@ class Avs:
       print(res.read())
       raise NameError("Bad recognize response %s" % (res.status))
     print("[STATE:RECOGNIZE] send event.")
-    print(res.read())
- 
-  def close(self, conn):
-    conn.close()
+    response_data = res.read()
+    print(response_data)
+
+    audio = self.pick_up_audio_from_directives(response_data)
+    self.play(audio)
+
+  def play(self, audio):
+    if self.audio_palyer_callback is not None:
+      self.audio_palyer_callback(audio)
+
+  def pick_up_audio_from_directives(self, directive_response):
+    chunks = directive_response.split('\r\n')
+    return chunks[8]
+
+  def close(self):
+    self.downstream_stop_signal.set()
+    self.connection.close()
 
   def gettoken(self):
     payload = {"client_id": Client_ID, "client_secret": Client_Secret, "refresh_token": refresh_token, "grant_type": "refresh_token", }
@@ -175,6 +190,3 @@ class Avs:
 
   def __end_boundary(self, name):
     return '\n--' + name + '--' + '\n'
-
-avs = Avs()
-avs.recognize()
