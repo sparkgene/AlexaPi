@@ -21,7 +21,14 @@ You will need:
 * An External Speaker with 3.5mm Jack
 * A USB Sound Dongle and Microphone
 
+### Requirments Libraries
+* Hyper
+https://github.com/Lukasa/hyper
 
+* snowboy
+https://github.com/Kitt-AI/snowboy
+
+### Needs Amazon.com account 
 Next you need to obtain a set of credentials from Amazon to use the Alexa Voice service, login at http://developer.amazon.com and Goto Alexa then Alexa Voice Service
 You need to create a new product type as a Device, for the ID use something like AlexaPi, create a new security profile and under the web settings allowed origins put http://localhost:5000 and as a return URL put http://localhost:5000/code you can also create URLs replacing localhost with the IP of your Pi  eg http://192.168.1.123:5000
 Make a note of these credentials you will be asked for them during the install process
@@ -41,7 +48,7 @@ Follow instructions....
 
 Enjoy :)
 
-### Specification
+### Specification(master branch)
   When you ran main.py, your PI say "hello" if authentication are succeeded to AVS.
   Next, PI say "ROKUON SHITEIMASU". That means "I am recording your voice."
   This window size are 5 seconds. you have to say any words(or centences) in 5 seconds.
@@ -52,19 +59,28 @@ Enjoy :)
   If you want to stop this program, you have to log in to PI, and CTRL+D.
   (now, we are improving...)
 
+### Specification(v2 branch)
+  you run wakeword_detection.py
+  Please say "Alexa". It will play "DING" sound if detected it.
+  You ask the question to Alexa in 5 seconds after detected.
+  
+  This is work in progress.
+  if you want to stop listening, use kill command to terminate python's process.
+  ex: ) find pid of wakeword_detection.py and kill prosess
+    %> ps aux
+    %> kill {{pid}}
+
 ### Sample movie
   https://www.youtube.com/watch?v=vizNdRTXK90&feature=youtu.be
 
-### Usage:
+### Usage(master branch):
   Default setting is manually. So you have to log in to the RaspberryPI(also SSH) and run command below.
 
   "python main.py"
 
-<<<<<<< HEAD
-  To run automatically, you can add above command to /etc/rc.d/rc.local
-=======
-  To run automatically, you can add above command to /etc/rc.local
->>>>>>> bfecf28967c95ecdce4fd97aecb09a67b284386d
+### Usage(v2 branch):
+  "python wakeword_detection.py"
+
 
 ### How to use this repo
   Check the movie:
