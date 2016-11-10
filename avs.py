@@ -7,7 +7,7 @@ import json
 import threading
 from creds import *
 import time
-import Queue
+from Queue import Queue
 
 
 class Avs:
@@ -42,14 +42,20 @@ class Avs:
         raise NameError("Bad synchronize response %s" % (res.status))
       print("[STATE:INIT] synchronize to AVS succeeded.")
 
-    create_connection()
-    establish_downstream()
-    synchronize_to_avs()
     self.audio_player_callback = audio_player_callback
     self.recorder_callback = recorder_callback
     self.voice_queue = Queue()
-    self.audio_arrival_polling_timer = threading.Timer(0.5, self.check_audio_arrival)
+    self.access_token = None
 
+    create_connection()
+    establish_downstream()
+    synchronize_to_avs()
+    
+  def start(self):
+    print(["start"])
+    th = threading.Thread(target=self.check_audio_arrival)
+    th.start()
+  
   def get_boundary(self, response):
     content = response.headers.pop('content-type')[0]
     b_start = content.find(b'boundary=')
@@ -74,7 +80,7 @@ class Avs:
 
     downstream = self.connection.streams[self.downstream_id]
 
-    while self.stop_signal.is_set():
+    while self.stop_signal.is_set() == False:
       if len(downstream.data) > 1:
         new_data, downstream.data = read_from_downstream(self.downstream_boundary, downstream.data)
         if len(new_data) > 0:
@@ -82,18 +88,20 @@ class Avs:
       time.sleep(0.5)
 
   def put_audio(self, audio):
-    threading.lock()
+    print("[STATE:AUDIO_PUT] audio arrival")
     self.voice_queue.put(audio)
+    print(self.voice_queue.empty())
 
   def check_audio_arrival(self):
-    if self.voice_queue.empty():
-      return
-    else:
-      audio = self.voice_queue.get()
-      rf = open('recording.wav', 'w')
-      rf.write(audio)
-      rf.close()
-      self.recognize()
+    while self.stop_signal.is_set() == False:
+      if self.voice_queue.empty() == False:
+        print("[STATE:AUDIO_ARRIVAL] detected autio arrival")
+        audio = self.voice_queue.get()
+        rf = open('recording.wav', 'w')
+        rf.write(audio)
+        rf.close()
+        self.recognize()
+      time.sleep(0.5)
 
   def recognize(self):
     boundary_name = 'recognize-term'
@@ -129,15 +137,17 @@ class Avs:
 
     if res.status == 204:
       print("[STATE:RECOGNIZE] no content")
-      return
-
-    # status = 200
-    print("[STATE:RECOGNIZE] send event.")
-    boundary = self.get_boundary(res)
-    response_data = res.read()
-
-    audio = self.pick_up_audio_from_directives(boundary, response_data)
+      print(res.headers)
+      print(res.read())
+      audio = None
+    else:
+      print("[STATE:RECOGNIZE] audio response present")
+      boundary = self.get_boundary(res)
+      response_data = res.read()
+      audio = self.pick_up_audio_from_directives(boundary, response_data)
+    
     self.play(audio)
+
 
   def play(self, audio):
     if self.audio_player_callback is not None:
@@ -160,17 +170,16 @@ class Avs:
 
   def close(self):
     self.stop_signal.set()
-    self.audio_arrival_polling_timer.cancel()
     self.connection.close()
 
   def gettoken(self):
-    if self.access_token is None or (self.gmtime - self.token_refreshed_time) > 3570:
+    if self.access_token is None or (time.mktime(time.gmtime()) - self.token_refreshed_time) > 3570:
       payload = {"client_id": Client_ID, "client_secret": Client_Secret, "refresh_token": refresh_token, "grant_type": "refresh_token", }
       url = "https://api.amazon.com/auth/o2/token"
       r = requests.post(url, data=payload)
       resp = json.loads(r.text)
       self.access_token = resp['access_token']
-      self.token_refreshed_time = time.gmtime
+      self.token_refreshed_time = time.mktime(time.gmtime())
       return resp['access_token']
     else:
       self.access_token

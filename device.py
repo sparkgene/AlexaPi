@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import os
+import signal
 import random
 import time
 import RPi.GPIO as GPIO
@@ -25,11 +26,15 @@ class Device:
     self.now_recording = False
     self.path = os.path.realpath(__file__).rstrip(os.path.basename(__file__))
     self.avs = Avs(self.recording, (lambda x: self.play(x)))
+    self.avs.start()
+    self.expect_speech = True
 
   def recording(self):
     def stop_recording():
       self.now_recording = False
 
+    self.expect_speech = False
+ 
     if self.inp is None:
       self.inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, self.device)
       self.inp.setchannels(1)
@@ -41,6 +46,7 @@ class Device:
 
     t = threading.Timer(5.0, stop_recording)
     t.start()
+    self.audio = ''
     self.now_recording = True
     print("[STATE:RECORDING] started 5 seconds")
     while self.now_recording == True:
@@ -50,14 +56,17 @@ class Device:
     t.cancel()
     print("[STATE:RECORDING] End")
 
-    inp = None
-    self.audio = ''
-    self.avs.put_audio(audio)
+    self.avs.put_audio(self.audio)
 
   def play(self, audio_stream):
-    print("[STATE:AUDIO_PLAYER] play")
-    with open("response.mp3", 'wb') as f:
-      f.write(audio_stream)
-    os.system('mpg123 -q {}1sec.mp3 {}response.mp3'.format(self.path, self.path))
+    if audio_stream is not None:    
+      with open("response.mp3", 'w') as f:
+        f.write(audio_stream)
+      os.system('mpg123 -q {}1sec.mp3 {}response.mp3'.format(self.path, self.path))
+    
+    self.expect_speech = True
+    self.inp = None
 
-device = Device()
+  def stop(self):
+    self.avs.close()
+    self.inp = None
