@@ -16,7 +16,6 @@ from memcache import Client
 from avs import Avs
 
 
-
 class Device:
 
   def __init__(self):
@@ -25,6 +24,7 @@ class Device:
     self.inp = None
     self.now_recording = False
     self.path = os.path.realpath(__file__).rstrip(os.path.basename(__file__))
+    self.avs = Avs(self.recording, (lambda x: self.play(x)))
 
   def recording(self):
     def stop_recording():
@@ -50,15 +50,9 @@ class Device:
     t.cancel()
     print("[STATE:RECORDING] End")
 
-    rf = open('recording.wav', 'w')
-    rf.write(self.audio)
-    rf.close()
     inp = None
-
-    print("[STATE:RECORDING] Send the voice")
-    avs = Avs(lambda x: self.play(x))
-    avs.recognize()
-    avs.close()
+    self.audio = ''
+    self.avs.put_audio(audio)
 
   def play(self, audio_stream):
     print("[STATE:AUDIO_PLAYER] play")
@@ -67,5 +61,3 @@ class Device:
     os.system('mpg123 -q {}1sec.mp3 {}response.mp3'.format(self.path, self.path))
 
 device = Device()
-device.recording()
-

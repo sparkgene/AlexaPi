@@ -7,12 +7,13 @@ import json
 import threading
 from creds import *
 import time
+import Queue
 
 
 class Avs:
   ENDPOINT = 'avs-alexa-na.amazon.com'
 
-  def __init__(self, audio_player_callback):
+  def __init__(self, recorder_callback, audio_player_callback):
 
     def create_connection():
       self.connection = HTTP20Connection(host=self.ENDPOINT, secure=True, force_proto='h2', enable_push=True)
@@ -27,7 +28,7 @@ class Avs:
       self.downstream_boundary = self.get_boundary(downstream_response)
       print("[STATE:INIT] downstream established. bounday=%s" % (self.downstream_boundary))
 
-      self.downstream_stop_signal = threading.Event()
+      self.stop_signal = threading.Event()
       downstream_polling = threading.Thread(target=self.downstram_polling_thread)
       downstream_polling.start()
       print("[STATE:INIT] downstream polling start")
@@ -44,7 +45,10 @@ class Avs:
     create_connection()
     establish_downstream()
     synchronize_to_avs()
-    self.audio_player_callback = audio_player_callback 
+    self.audio_player_callback = audio_player_callback
+    self.recorder_callback = recorder_callback
+    self.voice_queue = Queue()
+    self.audio_arrival_polling_timer = threading.Timer(0.5, self.check_audio_arrival)
 
   def get_boundary(self, response):
     content = response.headers.pop('content-type')[0]
@@ -70,18 +74,31 @@ class Avs:
 
     downstream = self.connection.streams[self.downstream_id]
 
-    while self.downstream_stop_signal.is_set():
+    while self.stop_signal.is_set():
       if len(downstream.data) > 1:
         new_data, downstream.data = read_from_downstream(self.downstream_boundary, downstream.data)
         if len(new_data) > 0:
           print("response:" + new_data)
       time.sleep(0.5)
 
+  def put_audio(self, audio):
+    threading.lock()
+    self.voice_queue.put(audio)
+
+  def check_audio_arrival(self):
+    if self.voice_queue.empty():
+      return
+    else:
+      audio = self.voice_queue.get()
+      rf = open('recording.wav', 'w')
+      rf.write(audio)
+      rf.close()
+      self.recognize()
+
   def recognize(self):
     boundary_name = 'recognize-term'
     header = self.__header(boundary_name)
 
-    # build and request first message
     def recognize_first_message():
       message = {
               "header": {
@@ -109,10 +126,10 @@ class Avs:
     if res.status != 200 and res.status != 204:
       print(res.read())
       raise NameError("Bad recognize response %s" % (res.status))
-    
+
     if res.status == 204:
-	print("[STATE:RECOGNIZE] no content")
-        return
+      print("[STATE:RECOGNIZE] no content")
+      return
 
     # status = 200
     print("[STATE:RECOGNIZE] send event.")
@@ -128,6 +145,12 @@ class Avs:
     else:
       print("[STATE:RECOGNIZE] play device not assigned")
 
+  def recording(self):
+    if self.recorder_callback is not None:
+      self.recorder_callback()
+    else:
+      print("[STATE:RECOGNIZE] recording device not assigned")
+
   def pick_up_audio_from_directives(self, boundary, data):
     chunks = data.split('--' + boundary)
     content_and_attachment = [p for p in chunks if p != b'--' and p != b'--\r\n' and len(p) != 0 and p != '\r\n']
@@ -136,15 +159,21 @@ class Avs:
     return content_and_attachment[1].split('\r\n\r\n')[1].rstrip('\r\n')
 
   def close(self):
-    self.downstream_stop_signal.set()
+    self.stop_signal.set()
+    self.audio_arrival_polling_timer.cancel()
     self.connection.close()
 
   def gettoken(self):
-    payload = {"client_id": Client_ID, "client_secret": Client_Secret, "refresh_token": refresh_token, "grant_type": "refresh_token", }
-    url = "https://api.amazon.com/auth/o2/token"
-    r = requests.post(url, data=payload)
-    resp = json.loads(r.text)
-    return resp['access_token']
+    if self.access_token is None or (self.gmtime - self.token_refreshed_time) > 3570:
+      payload = {"client_id": Client_ID, "client_secret": Client_Secret, "refresh_token": refresh_token, "grant_type": "refresh_token", }
+      url = "https://api.amazon.com/auth/o2/token"
+      r = requests.post(url, data=payload)
+      resp = json.loads(r.text)
+      self.access_token = resp['access_token']
+      self.token_refreshed_time = time.gmtime
+      return resp['access_token']
+    else:
+      self.access_token
 
   def __synchronize_message(self, name):
     header = self.__message_header_first(name)
