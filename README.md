@@ -2,6 +2,9 @@
 
 [![Alexa_sample](https://raw.github.com/wiki/jaws-ug-kobe/AlexaPi/images/head_readme.png)](https://www.youtube.com/watch?v=vizNdRTXK90&feature=youtu.be)
 
+other demo movie(voice detection)
+https://www.youtube.com/watch?v=Ghn1NpbUPJQ
+
 ---
 
 ### Contributors
