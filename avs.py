@@ -147,8 +147,7 @@ class Avs:
       response_data = res.read()
       print(response_data)
       audio = self.pick_up_audio_from_directives(boundary, response_data)
-      audio = None
-      
+
     self.play(audio)
 
 
