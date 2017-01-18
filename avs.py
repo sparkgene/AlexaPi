@@ -135,7 +135,7 @@ class Avs:
       print(res.read())
       print("Bad recognize response %s" % (res.status))
       return
-      
+
     if res.status == 204:
       print("[STATE:RECOGNIZE] no content")
       print(res.headers)
@@ -146,6 +146,8 @@ class Avs:
       boundary = self.get_boundary(res)
       response_data = res.read()
       audio = self.pick_up_audio_from_directives(boundary, response_data)
+      if audio is None:
+          return
 
     self.play(audio)
 
@@ -166,7 +168,8 @@ class Avs:
     chunks = data.split('--' + boundary)
     content_and_attachment = [p for p in chunks if p != b'--' and p != b'--\r\n' and len(p) != 0 and p != '\r\n']
     if len(content_and_attachment) != 2:
-      raise NameError("Bad response data")
+        print "Bad response data"
+        return None
     return content_and_attachment[1].split('\r\n\r\n')[1].rstrip('\r\n')
 
   def close(self):
