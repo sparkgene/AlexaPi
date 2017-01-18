@@ -95,7 +95,7 @@ class Avs:
   def check_audio_arrival(self):
     while self.stop_signal.is_set() == False:
       if self.voice_queue.empty() == False:
-        print("[STATE:AUDIO_ARRIVAL] detected autio arrival")
+        print("[STATE:AUDIO_ARRIVAL] detected audio arrival")
         audio = self.voice_queue.get()
         rf = open('recording.wav', 'w')
         rf.write(audio)
@@ -134,7 +134,7 @@ class Avs:
     if res.status != 200 and res.status != 204:
       print(res.read())
       print("Bad recognize response %s" % (res.status))
-      return
+      audio = None
 
     if res.status == 204:
       print("[STATE:RECOGNIZE] no content")
@@ -145,10 +145,10 @@ class Avs:
       print("[STATE:RECOGNIZE] audio response present")
       boundary = self.get_boundary(res)
       response_data = res.read()
+      print(response_data)
       audio = self.pick_up_audio_from_directives(boundary, response_data)
-      if audio is None:
-          return
-
+      audio = None
+      
     self.play(audio)
 
 
