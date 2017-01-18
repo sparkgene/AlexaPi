@@ -50,12 +50,12 @@ class Avs:
     create_connection()
     establish_downstream()
     synchronize_to_avs()
-    
+
   def start(self):
     print(["start"])
     th = threading.Thread(target=self.check_audio_arrival)
     th.start()
-  
+
   def get_boundary(self, response):
     content = response.headers.pop('content-type')[0]
     b_start = content.find(b'boundary=')
@@ -133,8 +133,9 @@ class Avs:
     res = self.connection.get_response(stream_id)
     if res.status != 200 and res.status != 204:
       print(res.read())
-      raise NameError("Bad recognize response %s" % (res.status))
-
+      print("Bad recognize response %s" % (res.status))
+      return
+      
     if res.status == 204:
       print("[STATE:RECOGNIZE] no content")
       print(res.headers)
@@ -145,7 +146,7 @@ class Avs:
       boundary = self.get_boundary(res)
       response_data = res.read()
       audio = self.pick_up_audio_from_directives(boundary, response_data)
-    
+
     self.play(audio)
 
 
