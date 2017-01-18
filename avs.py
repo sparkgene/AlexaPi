@@ -57,13 +57,15 @@ class Avs:
     th.start()
 
   def get_boundary(self, response):
-    content = response.headers.pop('content-type')[-1]
+    content = response.headers.pop('content-type')[0]
+    print(content)
     b_start = content.find(b'boundary=')
     b_end = content[b_start:].find(b';')
     if b_end == -1:
         boundary = content[b_start+9:]
     else:
         boundary = content[b_start+9:b_start+b_end]
+    print(boundary)
     return boundary
 
   def downstram_polling_thread(self):
