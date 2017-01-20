@@ -92,7 +92,7 @@ class Avs:
         print("Content ID")
       elif line.startswith('\n'):
         print("enf of chunk")
-      elif line.startswith('Content-Type: application/octet-stream')
+      elif line.startswith('Content-Type: application/octet-stream'):
         print("octet-stream")
       else:
         print("audio")
