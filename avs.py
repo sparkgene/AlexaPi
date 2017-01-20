@@ -82,15 +82,15 @@ class Avs:
         print("body header")
       elif line.startswith('--'):
         print("boundary")
-      elif re.search(r'\w{7}-\w{4}-\w{4}-\w{4}-\w{12}', line):
-        print("response boudary")
+      elif re.search(r'^\w{7}-\w{4}-\w{4}-\w{4}-\w{12}', line):
+        print("boudary name")
       elif line.startswith('Content-Type: application/json; charset=UTF-8'):
         print("Content-type json")
       elif line.startswith('{'):
         print("message directives")
       elif line.startswith('Content-ID:'):
         print("Content ID")
-      elif line.startswith('\n'):
+      elif line.startswith('\r\n'):
         print("enf of chunk")
       elif line.startswith('Content-Type: application/octet-stream'):
         print("octet-stream")
