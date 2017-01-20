@@ -15,9 +15,11 @@ class Avs:
 
   def __init__(self, recorder_callback, audio_player_callback):
 
+
     def create_connection():
       self.connection = HTTP20Connection(host=self.ENDPOINT, secure=True, force_proto='h2', enable_push=True)
       print("[STATE:INIT] Connection created.")
+
 
     def establish_downstream():
       header = {"Authorization": "Bearer %s" % (self.gettoken())}
@@ -32,6 +34,7 @@ class Avs:
       downstream_polling = threading.Thread(target=self.downstram_polling_thread)
       downstream_polling.start()
       print("[STATE:INIT] downstream polling start")
+
 
     def synchronize_to_avs():
       boundary_name = 'synchronization-term'
@@ -51,10 +54,12 @@ class Avs:
     establish_downstream()
     synchronize_to_avs()
 
+
   def start(self):
     print(["start"])
     th = threading.Thread(target=self.check_audio_arrival)
     th.start()
+
 
   def get_boundary(self, response):
     content = response.headers.pop('content-type')[0]
@@ -67,6 +72,9 @@ class Avs:
         boundary = content[b_start+9:b_start+b_end]
     print(boundary)
     return boundary
+
+  def analyze_response(response):
+    print(response)
 
   def downstram_polling_thread(self):
 
@@ -89,10 +97,12 @@ class Avs:
           print("response:" + new_data)
       time.sleep(0.5)
 
+
   def put_audio(self, audio):
     print("[STATE:AUDIO_PUT] audio arrival")
     self.voice_queue.put(audio)
     print(self.voice_queue.empty())
+
 
   def check_audio_arrival(self):
     while self.stop_signal.is_set() == False:
@@ -104,6 +114,7 @@ class Avs:
         rf.close()
         self.recognize()
       time.sleep(0.5)
+
 
   def recognize(self):
     boundary_name = 'recognize-term'
@@ -147,7 +158,7 @@ class Avs:
       print("[STATE:RECOGNIZE] audio response present")
       boundary = self.get_boundary(res)
       response_data = res.read()
-      print(response_data)
+      analyzed = analyze_response(response_data)
       audio = self.pick_up_audio_from_directives(boundary, response_data)
 
     self.play(audio)
@@ -159,11 +170,13 @@ class Avs:
     else:
       print("[STATE:RECOGNIZE] play device not assigned")
 
+
   def recording(self):
     if self.recorder_callback is not None:
       self.recorder_callback()
     else:
       print("[STATE:RECOGNIZE] recording device not assigned")
+
 
   def pick_up_audio_from_directives(self, boundary, data):
     chunks = data.split('--' + boundary)
