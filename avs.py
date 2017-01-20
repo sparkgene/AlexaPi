@@ -73,7 +73,7 @@ class Avs:
     print(boundary)
     return boundary
 
-  def analyze_response(response):
+  def analyze_response(self, response):
     print(response)
 
   def downstram_polling_thread(self):
@@ -158,7 +158,7 @@ class Avs:
       print("[STATE:RECOGNIZE] audio response present")
       boundary = self.get_boundary(res)
       response_data = res.read()
-      analyzed = analyze_response(response_data)
+      analyzed = self.analyze_response(response_data)
       audio = self.pick_up_audio_from_directives(boundary, response_data)
 
     self.play(audio)
