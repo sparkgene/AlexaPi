@@ -97,7 +97,7 @@ class Avs:
       else:
         print("audio")
 
-    lines = response.split('\n')
+    lines = response.split('\r\n')
     [add_chunk(line) for line in lines]
     print(response)
 
