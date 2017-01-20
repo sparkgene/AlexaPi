@@ -8,6 +8,7 @@ import threading
 from creds import *
 import time
 from Queue import Queue
+import re
 
 
 class Avs:
@@ -73,7 +74,31 @@ class Avs:
     print(boundary)
     return boundary
 
+
   def analyze_response(self, response):
+    def add_chunk(line):
+      print(line)
+      if line.startswith('multipart'):
+        print("body header")
+      elif line.startswith('--'):
+        print("boundary")
+      elif re.search(r'\w{7}-\w{4}-\w{4}-\w{4}-\w{12}', line):
+        print("response boudary")
+      elif line.startswith('Content-Type: application/json; charset=UTF-8'):
+        print("Content-type json")
+      elif line.startswith('{'):
+        print("message directives")
+      elif line.startswith('Content-ID:'):
+        print("Content ID")
+      elif line.startswith('\n'):
+        print("enf of chunk")
+      elif line.startswith('Content-Type: application/octet-stream')
+        print("octet-stream")
+      else:
+        print("audio")
+
+    lines = response.split('\n')
+    [add_chunk(line) for line in lines]
     print(response)
 
   def downstram_polling_thread(self):
