@@ -34,14 +34,16 @@ class Device:
 
 
     def active(self):
-        ret = True
         if self.__avs.active() or self.__recording:
             return True
         else:
+            self.__inp = None
             return False
 
 
     def start_recording(self):
+        self.__recording = True
+
         self.__recording_thread = threading.Thread(target=self.recording)
         self.__recording_thread.start()
 
@@ -63,13 +65,11 @@ class Device:
             t.start()
 
             print("[STATE:RECORDING] started 5 seconds")
-            self.__recording = True
             while self.__recording == True:
                 l, data = self.__inp.read()
                 if l:
                     audio += data
             print("[STATE:RECORDING] End")
-            self.__inp = None
             self.__avs.put_audio(audio)
 
             if self.__avs.active() == False:
