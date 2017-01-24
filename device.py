@@ -27,7 +27,8 @@ class Device:
         self.__inp = None
         self.__device = "plughw:1,0"
 
-        self.__check_audio_arrival_thread = threading.Timer(0.5, self.check_audio_arrival)
+        self.__check_audio_arrival_thread = threading.Thread(target=self.check_audio_arrival)
+        self.__check_audio_arrival_thread.start()
         self.__recording_thread = None
 
 
@@ -38,6 +39,7 @@ class Device:
     def start_recording(self):
         self.__idle = False
         self.__recording_thread = threading.Thread(target=self.recording)
+        self.__recording_thread.start()
 
 
     def stop_or_continue_recording(self):
