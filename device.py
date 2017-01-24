@@ -72,7 +72,7 @@ class Device:
             self.__inp = None
             self.__avs.put_audio(audio)
 
-            if self.__avs.ative() == False:
+            if self.__avs.active() == False:
                 break
 
             time.sleep(0.5)
