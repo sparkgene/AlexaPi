@@ -26,10 +26,10 @@ class Device:
         self.__inp = None
         self.__device = "plughw:1,0"
         self.__recording = False
-        self.__check_audio_arrival_thread = threading.Thread(target=self.check_audio_arrival)
-        self.__check_audio_arrival_thread.start()
         self.__recording_thread = None
         self.__stop_device = False
+        self.__check_audio_arrival_thread = threading.Thread(target=self.check_audio_arrival)
+        self.__check_audio_arrival_thread.start()
 
 
     def active(self):
