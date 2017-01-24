@@ -29,7 +29,6 @@ class Device:
         self.__check_audio_arrival_thread = threading.Thread(target=self.check_audio_arrival)
         self.__check_audio_arrival_thread.start()
         self.__recording_thread = None
-        self.__stop_device = False
 
 
     def active(self):
@@ -84,11 +83,14 @@ class Device:
                     f.write(audio_stream)
                     os.system('mpg123 -q {}1sec.mp3 {}response.mp3'.format(self.__path, self.__path))
 
-        while self.__stop_device == False:
+        while True:
             if not self.__audio_queue.empty():
                 print("[STATE:DEVICE] alex response play.")
                 audio = self.__audio_queue.get()
                 play(audio)
+
+            if self.__stop_device == False:
+                break
 
             time.sleep(0.5)
 
