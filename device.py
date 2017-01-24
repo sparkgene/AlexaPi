@@ -100,7 +100,7 @@ class Device:
 
             time.sleep(0.5)
 
-    def play(audio):
+    def play(self, audio):
         if audio is not None:
             with open("response.mp3", 'w') as f:
                 f.write(audio)
