@@ -10,8 +10,6 @@ from creds import *
 import time
 from Queue import Queue
 import re
-# import os
-# import subprocess
 
 voice_queue_lock = threading.Lock()
 
@@ -47,7 +45,7 @@ class Avs:
                 raise NameError("Bad synchronize response %s" % (res.status))
             print("[STATE:INIT] synchronize to AVS succeeded.")
 
-        # self.__path = os.path.realpath(__file__).rstrip(os.path.basename(__file__))
+
         self.put_audio_to_device_callback = put_audio_to_device
         self.stop_signal = threading.Event()
         self.voice_queue = Queue()
@@ -108,7 +106,7 @@ class Avs:
 
     def put_audio(self, audio):
         print("[STATE:AUDIO_PUT] customer voice arrival")
-        with voice_queue_lock:
+        with queue_lock:
             self.voice_queue.put(audio)
         print(self.voice_queue.empty())
 
@@ -117,10 +115,7 @@ class Avs:
         while self.stop_signal.is_set() == False:
             if self.voice_queue.empty() == False:
                 print("[STATE:AUDIO_ARRIVAL] detected audio arrival")
-
-                with voice_queue_lock:
-                    audio = self.voice_queue.get()
-
+                audio = self.voice_queue.get()
                 rf = open('recording.wav', 'w')
                 rf.write(audio)
                 rf.close()
@@ -172,10 +167,6 @@ class Avs:
             response_data = res.read()
             analyzed = self.analyze_response(response_data)
             audio = self.pick_up_audio_from_directives(boundary, response_data)
-            # with open("response.mp3", 'w') as f:
-            #     f.write(audio)
-            #     cmd = "mpg123 -q %s1sec.mp3 %sresponse.mp3" % (self.__path, self.__path)
-            #     subprocess.call(cmd.strip().split(' '))
 
         self.put_audio_to_device(audio)
 
