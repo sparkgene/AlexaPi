@@ -92,7 +92,7 @@ class Device:
                 print("[STATE:DEVICE] alexa response play.")
                 with audio_queue_lock:
                     audio = self.__audio_queue.get()
-                play(audio)
+                    play(audio)
 
             if self.__stop_device == True:
                 break
