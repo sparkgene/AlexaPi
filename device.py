@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import os
+import subprocess
 import signal
 import random
 import time
@@ -82,7 +83,8 @@ class Device:
             if audio is not None:
                 with open("response.mp3", 'w') as f:
                     f.write(audio)
-                    os.system('mpg123 -q {}1sec.mp3 {}response.mp3'.format(self.__path, self.__path))
+                    args = "-q %s1sec.mp3 %sresponse.mp3" % (self.__path, self.__path)
+                    subprocess.call(["mpg123", args])
 
         while True:
             if not self.__audio_queue.empty():
