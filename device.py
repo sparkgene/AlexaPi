@@ -31,7 +31,7 @@ class Device:
         self.__check_audio_arrival_thread = threading.Thread(target=self.check_audio_arrival)
         self.__check_audio_arrival_thread.start()
         self.__recording_thread = None
-        self.__stop_signal = threading.Event()
+        self.stop_signal = threading.Event()
 
 
     def active(self):
@@ -86,7 +86,7 @@ class Device:
                     f.write(audio_stream)
                     os.system('mpg123 -q {}1sec.mp3 {}response.mp3'.format(self.__path, self.__path))
 
-        while self.__stop_signal.is_set() == False:
+        while self.stop_signal.is_set() == False:
             if not self.__audio_queue.empty():
                 audio = self.__audio_queue.get()
                 play(audio)
