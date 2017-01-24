@@ -103,6 +103,7 @@ class Device:
     def play(self, audio):
         if audio is not None:
             with open("response.mp3", 'w') as f:
+                print("[STATE:DEVICE] alexa response play.")
                 f.write(audio)
                 cmd = "mpg123 -q %s1sec.mp3 %sresponse.mp3" % (self.__path, self.__path)
                 subprocess.call(cmd.strip().split(' '))
@@ -129,4 +130,3 @@ class Device:
           self.__inp.setrate(16000)
           self.__inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
           self.__inp.setperiodsize(500)
-          self.audio = ""
