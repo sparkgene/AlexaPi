@@ -10,6 +10,7 @@ from creds import *
 import time
 from Queue import Queue
 import re
+import os
 import subprocess
 
 voice_queue_lock = threading.Lock()
