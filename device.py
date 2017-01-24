@@ -73,8 +73,9 @@ class Device:
         def play(audio):
             if audio is not None:
                 with open("response.mp3", 'w') as f:
-                f.write(audio_stream)
-                os.system('mpg123 -q {}1sec.mp3 {}response.mp3'.format(self.__path, self.__path))
+                    f.write(audio_stream)
+                    os.system('mpg123 -q {}1sec.mp3 {}response.mp3'.format(self.__path, self.__path))
+
 
         if not self.__audio_queue.empty()
             audio = self.__audio_queue.get()
