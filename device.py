@@ -22,7 +22,8 @@ audio_queue_lock = threading.Lock()
 class Device:
     def __init__(self):
         self.__path = os.path.realpath(__file__).rstrip(os.path.basename(__file__))
-        self.__avs = Avs(put_audio_to_device=(lambda x: self.enque(x)))
+        # self.__avs = Avs(put_audio_to_device=(lambda x: self.enque(x)))
+        self.__avs = Avs(put_audio_to_device=(lambda x: self.play(x)))
         self.__avs.start()
         self.__audio_queue = Queue()
         self.__inp = None
@@ -80,7 +81,7 @@ class Device:
 
 
     def check_audio_arrival(self):
-        def play(audio):
+        def internal_play(audio):
             if audio is not None:
                 with open("response.mp3", 'w') as f:
                     f.write(audio)
@@ -92,12 +93,19 @@ class Device:
                 print("[STATE:DEVICE] alexa response play.")
                 with audio_queue_lock:
                     audio = self.__audio_queue.get()
-                play(audio)
+                internal_play(audio)
 
             if self.__stop_device == True:
                 break
 
             time.sleep(0.5)
+
+    def play(audio):
+        if audio is not None:
+            with open("response.mp3", 'w') as f:
+                f.write(audio)
+                cmd = "mpg123 -q %s1sec.mp3 %sresponse.mp3" % (self.__path, self.__path)
+                subprocess.call(cmd.strip().split(' '))
 
 
     def enque(self, audio):

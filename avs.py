@@ -10,8 +10,8 @@ from creds import *
 import time
 from Queue import Queue
 import re
-import os
-import subprocess
+# import os
+# import subprocess
 
 voice_queue_lock = threading.Lock()
 
@@ -172,10 +172,10 @@ class Avs:
             response_data = res.read()
             analyzed = self.analyze_response(response_data)
             audio = self.pick_up_audio_from_directives(boundary, response_data)
-            with open("response.mp3", 'w') as f:
-                f.write(audio)
-                cmd = "mpg123 -q %s1sec.mp3 %sresponse.mp3" % (self.__path, self.__path)
-                subprocess.call(cmd.strip().split(' '))
+            # with open("response.mp3", 'w') as f:
+            #     f.write(audio)
+            #     cmd = "mpg123 -q %s1sec.mp3 %sresponse.mp3" % (self.__path, self.__path)
+            #     subprocess.call(cmd.strip().split(' '))
 
         self.put_audio_to_device(audio)
 
