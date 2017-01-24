@@ -7,7 +7,7 @@ import time
 import wave
 import os
 import logging
-from device import Device 
+from device import Device
 
 logging.basicConfig()
 logger = logging.getLogger("snowboy")
@@ -174,16 +174,16 @@ class HotwordDetector(object):
                                          time.localtime(time.time()))
                 logger.info(message)
                 callback = detected_callback[ans-1]
-                
+
                 if ans == 2:
                   self.alexa_device.stop()
                   break;
                 if callback is not None:
                     callback()
-                    self.stream_in.close() 
-                    self.alexa_device.recording()  
+                    self.stream_in.close()
+                    self.alexa_device.start_recording()
 
-                    while self.alexa_device.expect_speech == False:
+                    while self.alexa_device.not_idle():
                       time.sleep(0.5)
 
                     print("wake word speechable")
