@@ -26,6 +26,7 @@ class Device:
         self.__audio_queue = Queue()
         self.__inp = None
         self.__device = "plughw:1,0"
+        self.__recording = False
 
         self.__check_audio_arrival_thread = threading.Thread(target=self.check_audio_arrival)
         self.__check_audio_arrival_thread.start()
@@ -51,9 +52,8 @@ class Device:
 
     def recording(self):
         audio = ''
-        recording = True
         def stop_recording():
-            recording = False
+            self.__recording = False
 
         while True:
             self.__init_device()
@@ -62,12 +62,12 @@ class Device:
             t.start()
 
             print("[STATE:RECORDING] started 5 seconds")
-            while recording == True:
-              l, data = self.__inp.read()
-              if l:
-                audio += data
+            self.__recording = True
+            while self.__recording == True:
+                l, data = self.__inp.read()
+                if l:
+                    audio += data
             print("[STATE:RECORDING] End")
-
             self.__avs.put_audio(audio)
 
             if self.__avs.is_session_end():
