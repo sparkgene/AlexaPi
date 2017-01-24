@@ -77,7 +77,7 @@ class Device:
                     os.system('mpg123 -q {}1sec.mp3 {}response.mp3'.format(self.__path, self.__path))
 
 
-        if not self.__audio_queue.empty()
+        if not self.__audio_queue.empty():
             audio = self.__audio_queue.get()
             play(audio)
 
