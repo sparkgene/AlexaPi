@@ -47,7 +47,7 @@ class Avs:
                 raise NameError("Bad synchronize response %s" % (res.status))
             print("[STATE:INIT] synchronize to AVS succeeded.")
 
-        self.__path = os.path.realpath(__file__).rstrip(os.path.basename(__file__))
+        # self.__path = os.path.realpath(__file__).rstrip(os.path.basename(__file__))
         self.put_audio_to_device_callback = put_audio_to_device
         self.stop_signal = threading.Event()
         self.voice_queue = Queue()
