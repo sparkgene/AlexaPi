@@ -166,7 +166,7 @@ class Avs:
             analyzed = self.analyze_response(response_data)
             audio = self.pick_up_audio_from_directives(boundary, response_data)
 
-        self.put_audio(audio)
+        self.put_audio_to_device(audio)
 
 
     def put_audio_to_device(self, audio):
