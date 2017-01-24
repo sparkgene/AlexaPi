@@ -29,6 +29,7 @@ class Device:
         self.__check_audio_arrival_thread = threading.Thread(target=self.check_audio_arrival)
         self.__check_audio_arrival_thread.start()
         self.__recording_thread = None
+        self.__stop_device = False
 
 
     def active(self):
