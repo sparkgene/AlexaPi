@@ -36,6 +36,7 @@ class Device:
 
 
     def start_recording(self):
+        self.__idle = False
         self.__recording_thread = threading.Timer(0.5, self.recording)
 
 
