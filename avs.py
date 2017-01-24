@@ -115,7 +115,7 @@ class Avs:
         while self.stop_signal.is_set() == False:
             if self.voice_queue.empty() == False:
                 print("[STATE:AUDIO_ARRIVAL] detected audio arrival")
-                with voice_queue_lock
+                with voice_queue_lock:
                     audio = self.voice_queue.get()
                 rf = open('recording.wav', 'w')
                 rf.write(audio)
