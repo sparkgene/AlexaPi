@@ -22,7 +22,6 @@ class Device:
         self.__path = os.path.realpath(__file__).rstrip(os.path.basename(__file__))
         self.__avs = Avs(put_audio_to_device=(lambda x: self.enque(x)))
         self.__avs.start()
-        self.__idle = True
         self.__audio_queue = Queue()
         self.__inp = None
         self.__device = "plughw:1,0"
@@ -51,8 +50,6 @@ class Device:
         if self.__avs.is_session_end:
             self.__recording_thread = None
 
-        self.__idle = self.__avs.is_session_end()
-
 
     def recording(self):
         audio = ''
@@ -75,7 +72,7 @@ class Device:
             self.__inp = None
             self.__avs.put_audio(audio)
 
-            if self.__avs.is_session_end():
+            if self.__avs.ative() == False:
                 break
 
             time.sleep(0.5)
