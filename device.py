@@ -17,6 +17,7 @@ from memcache import Client
 from avs import Avs
 from Queue import Queue
 
+audio_queue_lock = threading.Lock()
 
 class Device:
     def __init__(self):
@@ -89,7 +90,8 @@ class Device:
         while True:
             if not self.__audio_queue.empty():
                 print("[STATE:DEVICE] alexa response play.")
-                audio = self.__audio_queue.get()
+                with audio_queue_lock:
+                    audio = self.__audio_queue.get()
                 play(audio)
 
             if self.__stop_device == True:
@@ -100,7 +102,8 @@ class Device:
 
     def enque(self, audio):
         print("[STATE:DEVICE] alexa response received.")
-        self.__audio_queue.put(audio)
+        with audio_queue_lock:
+            self.__audio_queue.put(audio)
 
 
     def stop(self):
