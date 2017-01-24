@@ -33,8 +33,11 @@ class Device:
         self.__recording_thread = None
 
 
-    def not_idle(self):
-        return (not self.__idle)
+    def playing(self):
+        if self.__avs.is_session_end():
+            return False
+        else:
+            return True
 
 
     def start_recording(self):

@@ -183,7 +183,7 @@ class HotwordDetector(object):
                     self.stream_in.close()
                     self.alexa_device.start_recording()
 
-                    while self.alexa_device.not_idle():
+                    while self.alexa_device.playing():
                       time.sleep(0.5)
 
                     print("wake word speechable")
