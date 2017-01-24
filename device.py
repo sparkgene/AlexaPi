@@ -86,11 +86,11 @@ class Device:
 
         while True:
             if not self.__audio_queue.empty():
-                print("[STATE:DEVICE] alex response play.")
+                print("[STATE:DEVICE] alexa response play.")
                 audio = self.__audio_queue.get()
                 play(audio)
 
-            if self.__stop_device == False:
+            if self.__stop_device == True:
                 break
 
             time.sleep(0.5)
