@@ -90,7 +90,6 @@ class Device:
                 audio = self.__audio_queue.get()
                 play(audio)
 
-            self.__inp = None
             time.sleep(0.5)
 
 
