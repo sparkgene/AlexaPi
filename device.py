@@ -74,6 +74,7 @@ class Device:
             self.__avs.put_audio(audio)
 
             if self.__avs.is_session_end():
+                self.__inp = None
                 break
 
             time.sleep(0.5)
