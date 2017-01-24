@@ -91,7 +91,7 @@ class Device:
             if not self.__audio_queue.empty():
                 print("[STATE:DEVICE] alexa response play.")
                 with audio_queue_lock:
-                    audio = self.__audio_queue.get()
+                    audio = self.__audio_queue.get(block=True)
                     play(audio)
 
             if self.__stop_device == True:
