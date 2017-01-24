@@ -85,7 +85,7 @@ class Device:
                     f.write(audio_stream)
                     os.system('mpg123 -q {}1sec.mp3 {}response.mp3'.format(self.__path, self.__path))
 
-        while self.stop == False:
+        while self.__stop == False:
             if not self.__audio_queue.empty():
                 print("[STATE:DEVICE] alex response play.")
                 audio = self.__audio_queue.get()
