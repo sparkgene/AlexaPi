@@ -32,7 +32,7 @@ class Device:
 
 
     def not_idle(self):
-        return !__idle
+        return (not __idle)
 
 
     def start_recording(self):
