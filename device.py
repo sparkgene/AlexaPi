@@ -20,7 +20,7 @@ from Queue import Queue
 class Device:
     def __init__(self):
         self.__path = os.path.realpath(__file__).rstrip(os.path.basename(__file__))
-        self.__avs = Avs((lambda x: self.enque(x))
+        self.__avs = Avs(put_audio_to_device=(lambda x: self.enque(x)))
         self.__avs.start()
         self.__idle = True
         self.__audio_queue = Queue()
