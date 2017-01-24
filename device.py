@@ -87,6 +87,7 @@ class Device:
 
         while self.stop == False:
             if not self.__audio_queue.empty():
+                print("[STATE:DEVICE] alex response play.")
                 audio = self.__audio_queue.get()
                 play(audio)
 
@@ -95,6 +96,7 @@ class Device:
 
 
     def enque(self, audio):
+        print("[STATE:DEVICE] alexa response received.")
         self.__audio_queue.put(audio)
 
 
