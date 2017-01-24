@@ -83,8 +83,8 @@ class Device:
             if audio is not None:
                 with open("response.mp3", 'w') as f:
                     f.write(audio)
-                    args = "-q %s1sec.mp3 %sresponse.mp3" % (self.__path, self.__path)
-                    subprocess.call(["mpg123", args])
+                    cmd = "mpg123 -q %s1sec.mp3 %sresponse.mp3" % (self.__path, self.__path)
+                    subprocess.call(cmd.strip().sprit(' '))
 
         while True:
             if not self.__audio_queue.empty():
