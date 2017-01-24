@@ -61,8 +61,8 @@ class Avs:
         th.start()
 
 
-    def is_session_end(self):
-        return True
+    def active(self):
+        return False
 
 
     def get_boundary(self, response):

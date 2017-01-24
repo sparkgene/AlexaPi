@@ -27,18 +27,18 @@ class Device:
         self.__inp = None
         self.__device = "plughw:1,0"
         self.__recording = False
+        self.__playing = False
 
         self.__check_audio_arrival_thread = threading.Thread(target=self.check_audio_arrival)
         self.__check_audio_arrival_thread.start()
         self.__recording_thread = None
 
 
-    def playing(self):
-        if self.__avs.is_session_end():
-            self.__inp = None
-            return False
-        else:
+    def active(self):
+        if self.__avs.active or self.__recording:
             return True
+        else:
+            return False
 
 
     def start_recording(self):
@@ -72,6 +72,7 @@ class Device:
                 if l:
                     audio += data
             print("[STATE:RECORDING] End")
+            self.__inp = None
             self.__avs.put_audio(audio)
 
             if self.__avs.is_session_end():
