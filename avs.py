@@ -47,7 +47,7 @@ class Avs:
 
 
         self.put_audio_to_device = put_audio_to_device
-        self.stop_signal = Event()
+        self.stop_signal = threading.Event()
         self.voice_queue = Queue()
         self.access_token = None
 
