@@ -34,14 +34,14 @@ class Device:
 
 
     def active(self):
-        if self.__avs.active or self.__recording:
+        ret = True
+        if self.__avs.active() or self.__recording:
             return True
         else:
             return False
 
 
     def start_recording(self):
-        self.__idle = False
         self.__recording_thread = threading.Thread(target=self.recording)
         self.__recording_thread.start()
 
