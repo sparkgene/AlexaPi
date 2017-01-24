@@ -36,7 +36,7 @@ class Device:
 
 
     def start_recording(self):
-        self.__recording_threading.Timer(0.5, self.recording)
+        self.__recording_thread.Timer(0.5, self.recording)
 
 
     def stop_or_continue_recording(self):
