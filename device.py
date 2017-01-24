@@ -37,12 +37,11 @@ class Device:
 
     def start_recording(self):
         self.__idle = False
-        self.__recording_thread = threading.Timer(0.5, self.recording)
+        self.__recording_thread = threading.Thread(target=self.recording)
 
 
     def stop_or_continue_recording(self):
         if self.__avs.is_session_end:
-            self.__recording_thread.cancel()
             self.__recording_thread = None
 
         self.__idle = self.__avs.is_session_end()
@@ -51,23 +50,28 @@ class Device:
     def recording(self):
         audio = ''
         recording = True
-
-        self.__init_device()
-
         def stop_recording():
             recording = False
-        t = threading.Timer(5.0, stop_recording)
-        t.start()
 
-        print("[STATE:RECORDING] started 5 seconds")
-        while recording == True:
-          l, data = self.__inp.read()
-          if l:
-            audio += data
-        t.cancel()
-        print("[STATE:RECORDING] End")
+        while True:
+            self.__init_device()
 
-        self.__avs.put_audio(audio)
+            t = threading.Timer(5.0, stop_recording)
+            t.start()
+
+            print("[STATE:RECORDING] started 5 seconds")
+            while recording == True:
+              l, data = self.__inp.read()
+              if l:
+                audio += data
+            print("[STATE:RECORDING] End")
+
+            self.__avs.put_audio(audio)
+
+            if self.__avs.is_session_end():
+                break
+
+            time.sleep(0.5)
 
 
     def check_audio_arrival(self):
@@ -82,7 +86,6 @@ class Device:
             audio = self.__audio_queue.get()
             play(audio)
 
-        stop_or_continue_recording()
         self.__inp = None
 
 
