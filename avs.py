@@ -30,7 +30,6 @@ class Avs:
             self.downstream_boundary = self.get_boundary(downstream_response)
             print("[STATE:INIT] downstream established. bounday=%s" % (self.downstream_boundary))
 
-            self.stop_signal = threading.Event()
             downstream_polling = threading.Thread(target=self.downstram_polling_thread)
             downstream_polling.start()
             print("[STATE:INIT] downstream polling start")
@@ -46,7 +45,7 @@ class Avs:
             print("[STATE:INIT] synchronize to AVS succeeded.")
 
 
-        self.put_audio_to_device = put_audio_to_device
+        self.put_audio_to_device_callback = put_audio_to_device
         self.stop_signal = threading.Event()
         self.voice_queue = Queue()
         self.access_token = None
@@ -170,9 +169,9 @@ class Avs:
         self.put_audio(audio)
 
 
-    def put_audio(self, audio):
-        if self.put_audio_to_device is not None:
-            self.put_audio_to_device(audio)
+    def put_audio_to_device(self, audio):
+        if self.put_audio_to_device_callback is not None:
+            self.put_audio_to_device_callback(audio)
         else:
             print("[STATE:RECOGNIZE] play device not assigned")
 
