@@ -184,17 +184,18 @@ class HotwordDetector(object):
                     self.alexa_device.start_recording()
 
                     while self.alexa_device.active():
-                      time.sleep(0.5)
+                        print("[STATE::SNOWBOY] wait for idle")
+                        time.sleep(0.5)
 
                     print("wake word speechable")
                     self.stream_in = self.audio.open(
-                      input=True, output=False,
-                      format=self.audio.get_format_from_width(
-                      self.detector.BitsPerSample() / 8),
-                      channels=self.detector.NumChannels(),
-                      rate=self.detector.SampleRate(),
-                      frames_per_buffer=2048,
-                      stream_callback=audio_callback)
+                        input=True, output=False,
+                        format=self.audio.get_format_from_width(
+                        self.detector.BitsPerSample() / 8),
+                        channels=self.detector.NumChannels(),
+                        rate=self.detector.SampleRate(),
+                        frames_per_buffer=2048,
+                        stream_callback=audio_callback)
             ans = 0
         logger.debug("finished.")
 
