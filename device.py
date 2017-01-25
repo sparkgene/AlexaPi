@@ -39,6 +39,10 @@ class Device:
         return (self.__avs.active() or self.__recording)
 
 
+    def is_idle(self):
+        return self.__inp == None
+
+
     def wait_idle(self, seconds=0.5):
         while self.active() == True:
             time.sleep(seconds)

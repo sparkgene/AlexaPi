@@ -187,9 +187,9 @@ class HotwordDetector(object):
 
                     self.alexa_device.recording()
 
-                    while self.alexa_device.__inp is not None:
+                    while self.alexa_device.is_idle() == False:
                         time.sleep(0.5)
-                        
+
                     print("[STATE:SNOWBOY] reopen detection")
                     self.stream_in = self.open_detection_stream()
 
