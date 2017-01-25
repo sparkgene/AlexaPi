@@ -27,7 +27,7 @@ class Avs:
     def start(self):
         def create_connection():
             self.connection = HTTP20Connection(host=self.ENDPOINT, secure=True, force_proto='h2', enable_push=True)
-            print("[STATE:INIT] Connection created.")
+            print("[STATE:AVS] init Connection created.")
 
 
         def establish_downstream():
@@ -37,11 +37,11 @@ class Avs:
             if downstream_response.status != 200:
                 raise NameError("Bad downstream response %s" % (downstream_response.status))
             self.downstream_boundary = self.get_boundary(downstream_response)
-            print("[STATE:INIT] downstream established. bounday=%s" % (self.downstream_boundary))
+            print("[STATE:AVS] init downstream established. bounday=%s" % (self.downstream_boundary))
 
             downstream_polling = threading.Thread(target=self.downstream_polling_thread)
             downstream_polling.start()
-            print("[STATE:INIT] downstream polling start")
+            print("[STATE:AVS] init downstream polling start")
 
 
         def synchronize_to_avs():
@@ -51,7 +51,7 @@ class Avs:
             res = self.connection.get_response(stream_id)
             if res.status != 204:
                 raise NameError("Bad synchronize response %s" % (res.status))
-            print("[STATE:INIT] synchronize to AVS succeeded.")
+            print("[STATE:AVS] init synchronize to AVS succeeded.")
 
         create_connection()
         establish_downstream()
@@ -101,7 +101,7 @@ class Avs:
 
 
     def put_audio(self, audio):
-        print("[STATE:AUDIO_PUT] customer voice arrival")
+        print("[STATE:AVS] customer voice arrival")
         with voice_queue_lock:
             self.voice_queue.put(audio)
 
@@ -109,7 +109,7 @@ class Avs:
     def check_audio_arrival(self):
         while self.stop_signal.is_set() == False:
             if self.voice_queue.empty() == False:
-                print("[STATE:AUDIO_ARRIVAL] detected audio arrival")
+                print("[STATE:AVS] detected audio arrival")
                 with voice_queue_lock:
                     audio = self.voice_queue.get()
                 rf = open('recording.wav', 'w')
@@ -149,16 +149,16 @@ class Avs:
         res = self.connection.get_response(stream_id)
         if res.status != 200 and res.status != 204:
             print(res.read())
-            print("Bad recognize response %s" % (res.status))
+            print("[ERROR:AVS] Bad recognize response %s" % (res.status))
             audio = None
 
         if res.status == 204:
-            print("[STATE:RECOGNIZE] no content")
+            print("[STATE:AVS] recognize no content")
             print(res.headers)
             print(res.read())
             audio = None
         else:
-            print("[STATE:RECOGNIZE] audio response present")
+            print("[STATE:AVS] recognize audio response present")
             boundary = self.get_boundary(res)
             response_data = res.read()
             ar = self.analyze_response(boundary, response_data)
@@ -182,7 +182,7 @@ class Avs:
         if self.put_audio_to_device_callback is not None:
             self.put_audio_to_device_callback(audio)
         else:
-            print("[STATE:RECOGNIZE] play device not assigned")
+            print("[STATE:AVS] for play device not assigned")
 
 
     def analyze_response(self, boundary, data):

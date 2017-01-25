@@ -66,20 +66,24 @@ class Device:
             t = threading.Timer(5.0, stop_recording)
             t.start()
 
-            self.__recording = True
-            print("[STATE:RECORDING] started 5 seconds")
+            print("[STATE:DEVICE] recording started 5 seconds")
             while self.__recording == True:
                 l, data = self.__inp.read()
                 if l:
                     audio += data
-            print("[STATE:RECORDING] End")
+            print("[STATE:DEVICE] recording End")
             self.__avs.put_audio(audio)
 
             if self.__avs.active() == False:
+                print("[STATE:DEVICE] session end.")
                 break
 
             while self.__speeching == True:
+                print("[STATE:DEVICE] wait for recordable...")
                 time.sleep(0.5)
+
+            self.__recording = True
+
 
 
     def check_audio_arrival(self):
@@ -94,7 +98,7 @@ class Device:
 
         while True:
             if not self.__audio_queue.empty():
-                print("[STATE:DEVICE] alexa response play.")
+                print("[STATE:DEVICE] play alexa response.")
                 with audio_queue_lock:
                     audio = self.__audio_queue.get()
                 play(audio)
@@ -106,7 +110,7 @@ class Device:
 
 
     def enque(self, audio):
-        print("[STATE:DEVICE] alexa response received.")
+        print("[STATE:DEVICE] alexa response arrived.")
         with audio_queue_lock:
             self.__audio_queue.put(audio)
 
