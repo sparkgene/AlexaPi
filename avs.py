@@ -166,8 +166,8 @@ class Avs:
             print("[STATE:RECOGNIZE] audio response present")
             boundary = self.get_boundary(res)
             response_data = res.read()
-            audio = self.get_audio_from_response(boundary, response_data)
-            directives = self.get_directives_from_response(boundary, response_data)
+            r = self.analyze_response(boundary, response_data)
+            directives = self.analyze_response(boundary, response_data)
 
         self.put_audio_to_device(audio)
 
@@ -179,16 +179,16 @@ class Avs:
             print("[STATE:RECOGNIZE] play device not assigned")
 
 
-    def get_audio_from_response(self, boundary, data):
-        chunks = data.split('--' + boundary)
-        content_and_attachment = [p for p in chunks if p != b'--' and p != b'--\r\n' and len(p) != 0 and p != '\r\n']
-        print("length of part: %s" % len(content_and_attachment))
-        print(content_and_attachment)
-        return content_and_attachment[len(content_and_attachment)-1].split('\r\n\r\n')[1].rstrip('\r\n')
+    def analyze_response(self, boundary, data):
+        with open("testdata.txt", 'w') as f:
+            f.write(data)
+        tmp = data.split('--' + boundary)
+        chunks = [p for p in tmp if p != b'--' and p != b'--\r\n' and len(p) != 0 and p != '\r\n']
 
-
-    def get_directives_from_response(self, boundary, data):
-        print("")
+        # a = [(lambda x: [z.replace('\r\n','') for z in x]) for y in [x.split('\r\n\r\n') for x in chunks]]
+        # print(a)
+        audio = chunks[len(content_and_attachment)-1].split('\r\n\r\n')[1].rstrip('\r\n')
+        return audio
 
     def close(self):
         self.stop_signal.set()
