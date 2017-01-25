@@ -105,7 +105,7 @@ class HotwordDetector(object):
         self.alexa_device = Device()
 
 
-    def audio_callback(in_data, frame_count, time_info, status):
+    def audio_callback(self, in_data, frame_count, time_info, status):
         self.ring_buffer.extend(in_data)
         play_data = chr(0) * len(in_data)
         return play_data, pyaudio.paContinue
