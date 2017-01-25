@@ -111,7 +111,7 @@ class HotwordDetector(object):
         return play_data, pyaudio.paContinue
 
 
-    def open_detection_stream():
+    def open_detection_stream(self):
         if self.stream_in is None or not self.stream_in.is_active():
             s = self.audio.open(
                 input=True, output=False,
