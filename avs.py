@@ -168,8 +168,14 @@ class Avs:
         self.put_audio_to_device(r['audio'])
 
     def change_state(self, ar):
-        expect_speech = [x for x in ar['directives'] if x['directive']['header']['namespace'] == 'SpeechRecognizer' and x['directive']['header']['name'] == 'ExpectSpeech']
-        self.is_active = (speech_recognizer is not None and len(expect_speech) > 0)
+        # expect_speech = [x for x in ar['directives'] if x['directive']['header']['namespace'] == 'SpeechRecognizer' and x['directive']['header']['name'] == 'ExpectSpeech']
+        # print(ar['directives'][1][u'directive'][u'header'][u'namespace'] == u'SpeechRecognizer')
+        def is_expect_speech(x):
+            return isinstance(x, dict) and x[u'directive'][u'header'][u'namespace'] == u'SpeechRecognizer' and x[u'directive'][u'header'][u'name'] == u'ExpectSpeech'
+
+        expect_speech = [x for x in ar['directives'] if is_expect_speech(x)]
+
+        self.is_active = (expect_speech is not None and len(expect_speech) > 0)
 
 
     def put_audio_to_device(self, audio):
