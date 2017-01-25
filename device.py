@@ -43,6 +43,9 @@ class Device:
             self.__inp = None
             return False
 
+    def wait_idle(self, seconds=0.5):
+        while self.active() == True:
+            time.sleep(seconds)
 
     def start_recording(self):
         self.__recording = True
