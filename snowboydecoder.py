@@ -171,7 +171,6 @@ class HotwordDetector(object):
                 time.sleep(sleep_time)
                 continue
 
-            self.stream_in = self.open_detection_stream()
             ans = self.detector.RunDetection(data)
             if ans == -1:
                 logger.warning("Error initializing streams or reading audio data")
@@ -185,6 +184,9 @@ class HotwordDetector(object):
                     detected_callback[ans-1]()
                     self.stream_in.close()
                     self.alexa_device.start_recording()
+
+                    self.alexa_device.wait_idle()
+                    self.stream_in = self.open_detection_stream()
 
                 if ans == 2:
                     self.alexa_device.stop()
