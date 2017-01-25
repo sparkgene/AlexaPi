@@ -182,7 +182,7 @@ class Avs:
     def get_audio_from_response(self, boundary, data):
         chunks = data.split('--' + boundary)
         content_and_attachment = [p for p in chunks if p != b'--' and p != b'--\r\n' and len(p) != 0 and p != '\r\n']
-        print "length of part: %s" % len(content_and_attachment)
+        print("length of part: %s" % len(content_and_attachment))
         [print(x) for x in content_and_attachment]
         return content_and_attachment[len(content_and_attachment)-1].split('\r\n\r\n')[1].rstrip('\r\n')
 
