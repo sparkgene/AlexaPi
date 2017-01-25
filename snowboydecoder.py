@@ -159,7 +159,6 @@ class HotwordDetector(object):
             "Error: hotwords in your models (%d) do not match the number of " \
             "callbacks (%d)" % (self.num_hotwords, len(detected_callback))
 
-        self.stream_in = self.open_detection_stream()
         logger.debug("detecting...")
 
         while True:
@@ -184,10 +183,12 @@ class HotwordDetector(object):
                     detected_callback[ans-1]()
                     self.stream_in.close()
                     self.stream_in = None
-                    
+                    print("[STATE:SNOWBOY] stop detection")
+
                     self.alexa_device.start_recording()
 
                     self.alexa_device.wait_idle()
+                    print("[STATE:SNOWBOY] reopen detection")
                     self.stream_in = self.open_detection_stream()
 
                 if ans == 2:
