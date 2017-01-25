@@ -51,7 +51,7 @@ class Device:
     def recording(self):
         audio = ''
         def stop_recording():
-            self.__recording = False
+            self.__is_recording = False
 
         self.__init_device()
 
@@ -59,7 +59,7 @@ class Device:
         t.start()
 
         print("[STATE:DEVICE] recording started 5 seconds")
-        self.recording = True
+        self.__recording = True
         while self.__recording == True:
             l, data = self.__inp.read()
             if l:
