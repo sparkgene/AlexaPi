@@ -101,6 +101,7 @@ class HotwordDetector(object):
         self.ring_buffer = RingBuffer(
             self.detector.NumChannels() * self.detector.SampleRate() * 5)
         self.audio = pyaudio.PyAudio()
+        self.stream_in = None
         self.stream_in = self.open_detection_stream()
         self.alexa_device = Device()
 
