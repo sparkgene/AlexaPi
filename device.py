@@ -77,7 +77,7 @@ class Device:
             print("[STATE:DEVICE] recording End")
             self.__avs.put_audio(audio)
 
-            if self.__avs.active() == False:
+            if self.active() == False:
                 print("[STATE:DEVICE] session end.")
                 break
 
