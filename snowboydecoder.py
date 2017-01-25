@@ -120,7 +120,7 @@ class HotwordDetector(object):
                 channels=self.detector.NumChannels(),
                 rate=self.detector.SampleRate(),
                 frames_per_buffer=2048,
-                stream_callback=self.audio_callback)
+                stream_callback=audio_callback)
         return s
 
 
