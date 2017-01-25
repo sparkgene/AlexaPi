@@ -101,7 +101,6 @@ class HotwordDetector(object):
         self.ring_buffer = RingBuffer(
             self.detector.NumChannels() * self.detector.SampleRate() * 5)
         self.audio = pyaudio.PyAudio()
-        self.stream_in = None
         self.stream_in = self.open_detection_stream()
         self.alexa_device = Device()
 
@@ -113,7 +112,7 @@ class HotwordDetector(object):
             return play_data, pyaudio.paContinue
 
         if self.stream_in is None:
-            s = self.audio.open(
+            return self.audio.open(
                 input=True, output=False,
                 format=self.audio.get_format_from_width(
                     self.detector.BitsPerSample() / 8),
@@ -121,7 +120,8 @@ class HotwordDetector(object):
                 rate=self.detector.SampleRate(),
                 frames_per_buffer=2048,
                 stream_callback=audio_callback)
-        return s
+        else:
+            return self.stream_in
 
 
     def start(self, detected_callback=play_audio_file,
