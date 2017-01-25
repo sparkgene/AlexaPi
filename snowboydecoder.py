@@ -166,6 +166,7 @@ class HotwordDetector(object):
                 continue
 
             self.alexa_device.wait_idle()
+            print("[STATE:SNOWBOY] alexa device is idle detection open")
 
             ans = self.detector.RunDetection(data)
             if ans == -1:
@@ -184,8 +185,9 @@ class HotwordDetector(object):
                     callback()
                     self.stream_in.close()
                     self.alexa_device.start_recording()
-                    
+
                     self.alexa_device.wait_idle()
+                    print("[STATE:SNOWBOY] alexa device is idle detection reopen")
 
                     self.stream_in = self.audio.open(
                         input=True, output=False,
