@@ -51,7 +51,7 @@ class Device:
     def recording(self):
         audio = ''
         def stop_recording():
-            self.__is_recording = False
+            self.__recording = False
 
         self.__init_device()
 
