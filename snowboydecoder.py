@@ -167,7 +167,7 @@ class HotwordDetector(object):
                 logger.debug("detect voice break")
                 break
             data = self.ring_buffer.get()
-            if len(data) == 0 or self.alexa_device.active():
+            if len(data) == 0:
                 time.sleep(sleep_time)
                 continue
 
@@ -183,6 +183,8 @@ class HotwordDetector(object):
                 if ans == 1:
                     detected_callback[ans-1]()
                     self.stream_in.close()
+                    self.stream_in = None
+                    
                     self.alexa_device.start_recording()
 
                     self.alexa_device.wait_idle()
