@@ -180,7 +180,7 @@ class HotwordDetector(object):
                                          time.localtime(time.time()))
                 logger.info(message)
 
-                if ans == 1
+                if ans == 1:
                     detected_callback[ans-1]()
                     self.stream_in.close()
                     self.alexa_device.start_recording()
