@@ -187,7 +187,7 @@ class Avs:
 
         # a = [(lambda x: [z.replace('\r\n','') for z in x]) for y in [x.split('\r\n\r\n') for x in chunks]]
         # print(a)
-        audio = chunks[len(content_and_attachment)-1].split('\r\n\r\n')[1].rstrip('\r\n')
+        audio = chunks[len(chunks)-1].split('\r\n\r\n')[1].rstrip('\r\n')
         return audio
 
     def close(self):
