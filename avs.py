@@ -17,6 +17,14 @@ class Avs:
     ENDPOINT = 'avs-alexa-na.amazon.com'
 
     def __init__(self, put_audio_to_device):
+        self.put_audio_to_device_callback = put_audio_to_device
+        self.stop_signal = threading.Event()
+        self.voice_queue = Queue()
+        self.access_token = None
+        self.is_active = False
+
+
+    def start(self):
         def create_connection():
             self.connection = HTTP20Connection(host=self.ENDPOINT, secure=True, force_proto='h2', enable_push=True)
             print("[STATE:INIT] Connection created.")
@@ -45,25 +53,17 @@ class Avs:
                 raise NameError("Bad synchronize response %s" % (res.status))
             print("[STATE:INIT] synchronize to AVS succeeded.")
 
-
-        self.put_audio_to_device_callback = put_audio_to_device
-        self.stop_signal = threading.Event()
-        self.voice_queue = Queue()
-        self.access_token = None
-
         create_connection()
         establish_downstream()
         synchronize_to_avs()
 
-
-    def start(self):
         print(["start"])
         th = threading.Thread(target=self.check_audio_arrival)
         th.start()
 
 
     def active(self):
-        return False
+        return self.is_active
 
 
     def get_boundary(self, response):
@@ -77,10 +77,6 @@ class Avs:
             boundary = content[b_start+9:b_start+b_end]
         print(boundary)
         return boundary
-
-
-    def analyze_response(self, response):
-        print(response)
 
 
     def downstream_polling_thread(self):
@@ -166,10 +162,14 @@ class Avs:
             print("[STATE:RECOGNIZE] audio response present")
             boundary = self.get_boundary(res)
             response_data = res.read()
-            audio = self.analyze_response(boundary, response_data)
-            directives = self.analyze_response(boundary, response_data)
+            ar = self.analyze_response(boundary, response_data)
+            self.change_state(ar)
 
-        self.put_audio_to_device(audio)
+        self.put_audio_to_device(r['audio'])
+
+    def change_state(self, ar):
+        expect_speech = [x for x in ar['directives'] if x['directive']['header']['namespace'] = 'SpeechRecognizer' and x['directive']['header']['name'] = 'ExpectSpeech']
+        self.is_active = (speech_recognizer is not None and len(expect_speech) > 0)
 
 
     def put_audio_to_device(self, audio):
@@ -180,15 +180,24 @@ class Avs:
 
 
     def analyze_response(self, boundary, data):
-        with open("testdata.txt", 'w') as f:
-            f.write(data)
+        def analyze(chunk):
+            if chunk[0].startswith('Content-Type: application/json'):
+                directive = json.loads(chunk[1])
+            elif chunk[0].startswith('Content-ID'):
+                directive = ""
+            return directive
+
+        ret = {}
         tmp = data.split('--' + boundary)
         chunks = [p for p in tmp if p != b'--' and p != b'--\r\n' and len(p) != 0 and p != '\r\n']
-
-        # a = [(lambda x: [z.replace('\r\n','') for z in x]) for y in [x.split('\r\n\r\n') for x in chunks]]
-        # print(a)
+        tmp1 = [x.split('\r\n\r\n') for x in chunks]
+        tmp2 = [[y.replace('\r\n','') for y in x] for x in tmp1]
+        directives = [analyze(x) for x in tmp2]
         audio = chunks[len(chunks)-1].split('\r\n\r\n')[1].rstrip('\r\n')
-        return audio
+        ret['directives'] = directives
+        ret['audio'] = audio
+        return ret
+
 
     def close(self):
         self.stop_signal.set()

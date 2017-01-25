@@ -60,3 +60,8 @@ env/
 # credentials
 creds.py
 creds.pyc
+
+
+#test
+test/testdata*
+result.txt
