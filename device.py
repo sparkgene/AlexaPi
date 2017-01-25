@@ -47,8 +47,9 @@ class Device:
     def start_recording(self):
         self.__recording = True
 
-        self.__recording_thread = threading.Thread(target=self.recording)
-        self.__recording_thread.start()
+        if self.__recording_thread is None:
+            self.__recording_thread = threading.Thread(target=self.recording)
+            self.__recording_thread.start()
 
 
     def stop_or_continue_recording(self):
@@ -113,8 +114,8 @@ class Device:
     def stop(self):
         self.__avs.close()
         self.__inp = None
-        self.__recording_thread.cancel()
-        self.__check_audio_arrival_thread.cancel()
+        self.__recording_thread = None
+        self.__check_audio_arrival_thread = None
         self.__stop_device = True
 
 
