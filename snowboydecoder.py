@@ -75,11 +75,6 @@ class HotwordDetector(object):
                  sensitivity=[],
                  audio_gain=1):
 
-        def audio_callback(in_data, frame_count, time_info, status):
-            self.ring_buffer.extend(in_data)
-            play_data = chr(0) * len(in_data)
-            return play_data, pyaudio.paContinue
-
         tm = type(decoder_model)
         ts = type(sensitivity)
         if tm is not list:
@@ -106,15 +101,28 @@ class HotwordDetector(object):
         self.ring_buffer = RingBuffer(
             self.detector.NumChannels() * self.detector.SampleRate() * 5)
         self.audio = pyaudio.PyAudio()
-        self.stream_in = self.audio.open(
-            input=True, output=False,
-            format=self.audio.get_format_from_width(
-                self.detector.BitsPerSample() / 8),
-            channels=self.detector.NumChannels(),
-            rate=self.detector.SampleRate(),
-            frames_per_buffer=2048,
-            stream_callback=audio_callback)
+        self.stream_in = None
         self.alexa_device = Device()
+
+
+    def audio_callback(in_data, frame_count, time_info, status):
+        self.ring_buffer.extend(in_data)
+        play_data = chr(0) * len(in_data)
+        return play_data, pyaudio.paContinue
+
+
+    def open_detection_stream():
+        if self.stream_in is None or not self.stream_in.is_active():
+            s = self.audio.open(
+                input=True, output=False,
+                format=self.audio.get_format_from_width(
+                    self.detector.BitsPerSample() / 8),
+                channels=self.detector.NumChannels(),
+                rate=self.detector.SampleRate(),
+                frames_per_buffer=2048,
+                stream_callback=self.audio_callback)
+        return s
+
 
     def start(self, detected_callback=play_audio_file,
               interrupt_check=lambda: False,
@@ -135,10 +143,6 @@ class HotwordDetector(object):
         :param float sleep_time: how much time in second every loop waits.
         :return: None
         """
-        def audio_callback(in_data, frame_count, time_info, status):
-            self.ring_buffer.extend(in_data)
-            play_data = chr(0) * len(in_data)
-            return play_data, pyaudio.paContinue
 
         if interrupt_check():
             logger.debug("detect voice return")
@@ -154,6 +158,7 @@ class HotwordDetector(object):
             "Error: hotwords in your models (%d) do not match the number of " \
             "callbacks (%d)" % (self.num_hotwords, len(detected_callback))
 
+        self.stream_in = open_detection_stream()
         logger.debug("detecting...")
 
         while True:
@@ -161,13 +166,11 @@ class HotwordDetector(object):
                 logger.debug("detect voice break")
                 break
             data = self.ring_buffer.get()
-            if len(data) == 0:
+            if len(data) == 0 or self.alexa_device.active():
                 time.sleep(sleep_time)
                 continue
 
-            self.alexa_device.wait_idle()
-            print("[STATE:SNOWBOY] alexa device is idle detection open")
-
+            self.stream_in = open_detection_stream()
             ans = self.detector.RunDetection(data)
             if ans == -1:
                 logger.warning("Error initializing streams or reading audio data")
@@ -176,29 +179,18 @@ class HotwordDetector(object):
                 message += time.strftime("%Y-%m-%d %H:%M:%S",
                                          time.localtime(time.time()))
                 logger.info(message)
-                callback = detected_callback[ans-1]
 
-                if ans == 2:
-                  self.alexa_device.stop()
-                  break;
-                if callback is not None:
-                    callback()
+                if ans == 1
+                    detected_callback[ans-1]()
                     self.stream_in.close()
                     self.alexa_device.start_recording()
 
-                    self.alexa_device.wait_idle()
-                    print("[STATE:SNOWBOY] alexa device is idle detection reopen")
-
-                    self.stream_in = self.audio.open(
-                        input=True, output=False,
-                        format=self.audio.get_format_from_width(
-                        self.detector.BitsPerSample() / 8),
-                        channels=self.detector.NumChannels(),
-                        rate=self.detector.SampleRate(),
-                        frames_per_buffer=2048,
-                        stream_callback=audio_callback)
+                if ans == 2:
+                    self.alexa_device.stop()
+                    break;
             ans = 0
         logger.debug("finished.")
+
 
     def terminate(self):
         """

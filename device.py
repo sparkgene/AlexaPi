@@ -37,15 +37,13 @@ class Device:
 
 
     def active(self):
-        if self.__avs.active() or self.__recording or self.__speeching:
-            return True
-        else:
-            self.__inp = None
-            return False
+        return (self.__avs.active() or self.__recording or self.__speeching)
+
 
     def wait_idle(self, seconds=0.5):
         while self.active() == True:
             time.sleep(seconds)
+
 
     def start_recording(self):
         self.__recording_thread = threading.Thread(target=self.recording)
