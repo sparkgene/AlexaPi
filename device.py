@@ -77,7 +77,7 @@ class Device:
             if self.__avs.active() == False:
                 break
 
-            time.sleep(5.0)
+            time.sleep(1.0)
 
 
     def check_audio_arrival(self):

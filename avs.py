@@ -104,7 +104,6 @@ class Avs:
         print("[STATE:AUDIO_PUT] customer voice arrival")
         with voice_queue_lock:
             self.voice_queue.put(audio)
-        print(self.voice_queue.empty())
 
 
     def check_audio_arrival(self):
@@ -176,6 +175,7 @@ class Avs:
         expect_speech = [x for x in ar['directives'] if is_expect_speech(x)]
 
         self.is_active = (expect_speech is not None and len(expect_speech) > 0)
+        print("[STATE:AVS] avs state is_active = %s" % (self.is_active))
 
 
     def put_audio_to_device(self, audio):
