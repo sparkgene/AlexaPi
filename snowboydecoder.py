@@ -158,7 +158,7 @@ class HotwordDetector(object):
             "Error: hotwords in your models (%d) do not match the number of " \
             "callbacks (%d)" % (self.num_hotwords, len(detected_callback))
 
-        self.stream_in = open_detection_stream()
+        self.stream_in = self.open_detection_stream()
         logger.debug("detecting...")
 
         while True:
@@ -170,7 +170,7 @@ class HotwordDetector(object):
                 time.sleep(sleep_time)
                 continue
 
-            self.stream_in = open_detection_stream()
+            self.stream_in = self.open_detection_stream()
             ans = self.detector.RunDetection(data)
             if ans == -1:
                 logger.warning("Error initializing streams or reading audio data")
