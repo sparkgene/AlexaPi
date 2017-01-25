@@ -46,10 +46,8 @@ class Device:
 
     def start_recording(self):
         self.__recording = True
-
-        if self.__recording_thread is None:
-            self.__recording_thread = threading.Thread(target=self.recording)
-            self.__recording_thread.start()
+        self.__recording_thread = threading.Thread(target=self.recording)
+        self.__recording_thread.start()
 
 
     def stop_or_continue_recording(self):
@@ -88,8 +86,8 @@ class Device:
                 self.__speeching = True
                 with open("response.mp3", 'w') as f:
                     f.write(audio)
-                    cmd = "mpg123 -q %s1sec.mp3 %sresponse.mp3" % (self.__path, self.__path)
-                    subprocess.call(cmd.strip().split(' '))
+                cmd = "mpg123 -q %s1sec.mp3 %sresponse.mp3" % (self.__path, self.__path)
+                subprocess.call(cmd.strip().split(' '))
                 self.__speeching = False
 
         while True:
