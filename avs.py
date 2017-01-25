@@ -31,7 +31,7 @@ class Avs:
             self.downstream_boundary = self.get_boundary(downstream_response)
             print("[STATE:INIT] downstream established. bounday=%s" % (self.downstream_boundary))
 
-            downstream_polling = threading.Thread(target=self.downstram_polling_thread)
+            downstream_polling = threading.Thread(target=self.downstream_polling_thread)
             downstream_polling.start()
             print("[STATE:INIT] downstream polling start")
 
@@ -83,7 +83,7 @@ class Avs:
         print(response)
 
 
-    def downstram_polling_thread(self):
+    def downstream_polling_thread(self):
         def read_from_downstream(boundary, data):
             matching_indices = [n for n, chunk in enumerate(data) if chunk.endswith(boundary)]
             if not matching_indices:
@@ -166,8 +166,8 @@ class Avs:
             print("[STATE:RECOGNIZE] audio response present")
             boundary = self.get_boundary(res)
             response_data = res.read()
-            analyzed = self.analyze_response(response_data)
-            audio = self.pick_up_audio_from_directives(boundary, response_data)
+            audio = self.get_audio_from_response(boundary, response_data)
+            directives = self.get_directives_from_response(boundary, response_data)
 
         self.put_audio_to_device(audio)
 
@@ -179,12 +179,15 @@ class Avs:
             print("[STATE:RECOGNIZE] play device not assigned")
 
 
-    def pick_up_audio_from_directives(self, boundary, data):
+    def get_audio_from_response(self, boundary, data):
         chunks = data.split('--' + boundary)
         content_and_attachment = [p for p in chunks if p != b'--' and p != b'--\r\n' and len(p) != 0 and p != '\r\n']
         print "length of part: %s" % len(content_and_attachment)
+        [print(x) for x in content_and_attachment]
         return content_and_attachment[len(content_and_attachment)-1].split('\r\n\r\n')[1].rstrip('\r\n')
 
+
+    def get_directives_from_response(self, boundary, data):
 
     def close(self):
         self.stop_signal.set()
