@@ -48,7 +48,6 @@ class Device:
             time.sleep(seconds)
 
     def start_recording(self):
-        self.__recording = True
         self.__recording_thread = threading.Thread(target=self.recording)
         self.__recording_thread.start()
 
@@ -70,6 +69,7 @@ class Device:
             t.start()
 
             print("[STATE:DEVICE] recording started 5 seconds")
+            self.__recording = True
             while self.__recording == True:
                 l, data = self.__inp.read()
                 if l:
@@ -78,11 +78,11 @@ class Device:
             self.__avs.put_audio(audio)
 
             if self.active() == False:
-                print("[STATE:DEVICE] session end.")
+                print("[STATE:DEVICE] recording end")
                 break
 
             while self.__speeching == True:
-                print("[STATE:DEVICE] wait for recordable...")
+                print("[STATE:DEVICE] recording wait for recordable...")
                 time.sleep(0.5)
 
             self.__recording = True
@@ -93,10 +93,12 @@ class Device:
         def play(audio):
             if audio is not None:
                 self.__speeching = True
+                print("[STATE:DEVICE] start play alexa response.")
                 with open("response.mp3", 'w') as f:
                     f.write(audio)
                 cmd = "mpg123 -q %s1sec.mp3 %sresponse.mp3" % (self.__path, self.__path)
                 subprocess.call(cmd.strip().split(' '))
+                print("[STATE:DEVICE] end play alexa response.")
                 self.__speeching = False
 
         while True:
@@ -107,9 +109,11 @@ class Device:
                 play(audio)
 
             if self.__stop_device == True:
+                self.__speeching = False
                 break
 
             time.sleep(0.5)
+            self.__speeching = False
 
 
     def enque(self, audio):
