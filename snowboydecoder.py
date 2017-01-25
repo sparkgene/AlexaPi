@@ -164,6 +164,12 @@ class HotwordDetector(object):
             if len(data) == 0:
                 time.sleep(sleep_time)
                 continue
+                
+            while self.alexa_device.active():
+                print("[STATE::SNOWBOY] wait for idle")
+                time.sleep(0.5)
+
+            print("wake word speechable")
 
             ans = self.detector.RunDetection(data)
             if ans == -1:
@@ -183,11 +189,6 @@ class HotwordDetector(object):
                     self.stream_in.close()
                     self.alexa_device.start_recording()
 
-                    while self.alexa_device.active():
-                        print("[STATE::SNOWBOY] wait for idle")
-                        time.sleep(0.5)
-
-                    print("wake word speechable")
                     self.stream_in = self.audio.open(
                         input=True, output=False,
                         format=self.audio.get_format_from_width(
