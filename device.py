@@ -66,7 +66,7 @@ class Device:
             t = threading.Timer(5.0, stop_recording)
             t.start()
 
-            while self.__speeching :
+            while self.__speeching == True:
                 time.sleep(0.5)
 
             print("[STATE:RECORDING] started 5 seconds")
