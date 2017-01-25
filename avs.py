@@ -188,6 +188,7 @@ class Avs:
 
 
     def get_directives_from_response(self, boundary, data):
+        print("")
 
     def close(self):
         self.stop_signal.set()
