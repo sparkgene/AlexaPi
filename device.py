@@ -66,9 +66,7 @@ class Device:
             t = threading.Timer(5.0, stop_recording)
             t.start()
 
-            while self.__speeching == True:
-                time.sleep(0.5)
-
+            self.__recording = True
             print("[STATE:RECORDING] started 5 seconds")
             while self.__recording == True:
                 l, data = self.__inp.read()
@@ -80,7 +78,8 @@ class Device:
             if self.__avs.active() == False:
                 break
 
-            time.sleep(0.5)
+            while self.__speeching == True:
+                time.sleep(0.5)
 
 
     def check_audio_arrival(self):
