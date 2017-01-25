@@ -166,7 +166,7 @@ class Avs:
             print("[STATE:RECOGNIZE] audio response present")
             boundary = self.get_boundary(res)
             response_data = res.read()
-            r = self.analyze_response(boundary, response_data)
+            audio = self.analyze_response(boundary, response_data)
             directives = self.analyze_response(boundary, response_data)
 
         self.put_audio_to_device(audio)
