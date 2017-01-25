@@ -162,9 +162,10 @@ class Avs:
             boundary = self.get_boundary(res)
             response_data = res.read()
             ar = self.analyze_response(boundary, response_data)
+            audio = ar['audio']
             self.change_state(ar)
 
-        self.put_audio_to_device(ar['audio'])
+        self.put_audio_to_device(audio)
 
     def change_state(self, ar):
         # expect_speech = [x for x in ar['directives'] if x['directive']['header']['namespace'] == 'SpeechRecognizer' and x['directive']['header']['name'] == 'ExpectSpeech']

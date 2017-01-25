@@ -164,12 +164,11 @@ class HotwordDetector(object):
             if len(data) == 0:
                 time.sleep(sleep_time)
                 continue
-                
-            while self.alexa_device.active():
-                print("[STATE::SNOWBOY] wait for idle")
-                time.sleep(0.5)
 
-            print("wake word speechable")
+            if self.alexa_device.active():
+                continue
+                print("[STATE::SNOWBOY] alexa now playing active")
+                time.sleep(0.2)
 
             ans = self.detector.RunDetection(data)
             if ans == -1:
