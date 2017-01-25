@@ -112,7 +112,8 @@ class HotwordDetector(object):
 
 
     def open_detection_stream(self):
-        if self.stream_in is None or not self.stream_in.is_active():
+        s = None
+        if self.stream_in is None:
             s = self.audio.open(
                 input=True, output=False,
                 format=self.audio.get_format_from_width(
