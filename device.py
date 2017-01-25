@@ -43,16 +43,16 @@ class Device:
     def wait_idle(self, seconds=0.5):
         while self.active() == True:
             time.sleep(seconds)
+        self.release_capture_device()
+
+
+    def release_capture_device(self):
+        self.__inp = None
 
 
     def start_recording(self):
         self.__recording_thread = threading.Thread(target=self.recording)
         self.__recording_thread.start()
-
-
-    def stop_or_continue_recording(self):
-        if self.__avs.is_session_end:
-            self.__recording_thread = None
 
 
     def recording(self):
