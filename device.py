@@ -59,6 +59,7 @@ class Device:
         t.start()
 
         print("[STATE:DEVICE] recording started 5 seconds")
+        self.recording = True
         while self.__recording == True:
             l, data = self.__inp.read()
             if l:
