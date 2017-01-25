@@ -185,9 +185,11 @@ class HotwordDetector(object):
                     self.stream_in = None
                     print("[STATE:SNOWBOY] stop detection")
 
-                    self.alexa_device.start_recording()
+                    self.alexa_device.recording()
 
-                    self.alexa_device.wait_idle()
+                    while self.alexa_device.__inp is not None:
+                        time.sleep(0.5)
+                        
                     print("[STATE:SNOWBOY] reopen detection")
                     self.stream_in = self.open_detection_stream()
 

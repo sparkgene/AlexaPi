@@ -29,30 +29,19 @@ class Device:
         self.__inp = None
         self.__device = "plughw:1,0"
         self.__recording = False
-        self.__speeching = False
-        self.__recording_thread = None
         self.__stop_device = False
+        self.__audio_playing = False
         self.__check_audio_arrival_thread = threading.Thread(target=self.check_audio_arrival)
         self.__check_audio_arrival_thread.start()
 
 
     def active(self):
-        return (self.__avs.active() or self.__recording or self.__speeching)
+        return (self.__avs.active() or self.__recording)
 
 
     def wait_idle(self, seconds=0.5):
         while self.active() == True:
             time.sleep(seconds)
-        self.release_capture_device()
-
-
-    def release_capture_device(self):
-        self.__inp = None
-
-
-    def start_recording(self):
-        self.__recording_thread = threading.Thread(target=self.recording)
-        self.__recording_thread.start()
 
 
     def recording(self):
@@ -60,44 +49,29 @@ class Device:
         def stop_recording():
             self.__recording = False
 
-        while True:
-            self.__init_device()
+        self.__init_device()
 
-            t = threading.Timer(5.0, stop_recording)
-            t.start()
+        t = threading.Timer(5.0, stop_recording)
+        t.start()
 
-            print("[STATE:DEVICE] recording started 5 seconds")
-            self.__recording = True
-            while self.__recording == True:
-                l, data = self.__inp.read()
-                if l:
-                    audio += data
-            print("[STATE:DEVICE] recording End")
-            self.__avs.put_audio(audio)
-
-            if self.active() == False:
-                print("[STATE:DEVICE] recording end")
-                break
-
-            while self.__speeching == True:
-                print("[STATE:DEVICE] recording wait for recordable...")
-                time.sleep(0.5)
-
-            self.__recording = True
-
+        print("[STATE:DEVICE] recording started 5 seconds")
+        while self.__recording == True:
+            l, data = self.__inp.read()
+            if l:
+                audio += data
+        print("[STATE:DEVICE] recording End")
+        self.__avs.put_audio(audio)
 
 
     def check_audio_arrival(self):
         def play(audio):
             if audio is not None:
-                self.__speeching = True
                 print("[STATE:DEVICE] start play alexa response.")
                 with open("response.mp3", 'w') as f:
                     f.write(audio)
                 cmd = "mpg123 -q %s1sec.mp3 %sresponse.mp3" % (self.__path, self.__path)
                 subprocess.call(cmd.strip().split(' '))
                 print("[STATE:DEVICE] end play alexa response.")
-                self.__speeching = False
 
         while True:
             if not self.__audio_queue.empty():
@@ -106,12 +80,15 @@ class Device:
                     audio = self.__audio_queue.get()
                 play(audio)
 
+                if self.__avs.is_expect_speech():
+                    self.recording()
+                else:
+                    self.__inp = None
+
             if self.__stop_device == True:
-                self.__speeching = False
                 break
 
             time.sleep(0.5)
-            self.__speeching = False
 
 
     def enque(self, audio):
@@ -123,7 +100,6 @@ class Device:
     def stop(self):
         self.__avs.close()
         self.__inp = None
-        self.__recording_thread = None
         self.__check_audio_arrival_thread = None
         self.__stop_device = True
 

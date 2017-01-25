@@ -21,7 +21,7 @@ class Avs:
         self.stop_signal = threading.Event()
         self.voice_queue = Queue()
         self.access_token = None
-        self.is_active = False
+        self.expect_speech = False
 
 
     def start(self):
@@ -60,10 +60,6 @@ class Avs:
         print(["start"])
         th = threading.Thread(target=self.check_audio_arrival)
         th.start()
-
-
-    def active(self):
-        return self.is_active
 
 
     def get_boundary(self, response):
@@ -150,33 +146,36 @@ class Avs:
         if res.status != 200 and res.status != 204:
             print(res.read())
             print("[ERROR:AVS] Bad recognize response %s" % (res.status))
+            self.expect_speech = False
             audio = None
 
         if res.status == 204:
             print("[STATE:AVS] recognize no content")
             print(res.headers)
             print(res.read())
+            self.expect_speech = False
             audio = None
         else:
             print("[STATE:AVS] recognize audio response present")
             boundary = self.get_boundary(res)
             response_data = res.read()
             ar = self.analyze_response(boundary, response_data)
-            audio = ar['audio']
             self.change_state(ar)
+            audio = ar['audio']
 
         self.put_audio_to_device(audio)
 
+
+    def is_expect_speech(self):
+        return self.expect_speech
+
+
     def change_state(self, ar):
-        # expect_speech = [x for x in ar['directives'] if x['directive']['header']['namespace'] == 'SpeechRecognizer' and x['directive']['header']['name'] == 'ExpectSpeech']
-        # print(ar['directives'][1][u'directive'][u'header'][u'namespace'] == u'SpeechRecognizer')
-        def is_expect_speech(x):
+        def is_expect_speech_internal(x):
             return isinstance(x, dict) and x[u'directive'][u'header'][u'namespace'] == u'SpeechRecognizer' and x[u'directive'][u'header'][u'name'] == u'ExpectSpeech'
 
-        expect_speech = [x for x in ar['directives'] if is_expect_speech(x)]
-
-        self.is_active = (expect_speech is not None and len(expect_speech) > 0)
-        print("[STATE:AVS] avs state is_active = %s" % (self.is_active))
+        expect_speech = [x for x in ar['directives'] if is_expect_speech_internal(x)]
+        self.expect_speech = (expect_speech is not None and len(expect_speech) > 0)
 
 
     def put_audio_to_device(self, audio):
