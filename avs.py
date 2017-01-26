@@ -167,6 +167,7 @@ class Avs:
 
 
     def is_expect_speech(self):
+        print("[STATE:AVS] expect speech %s" % (self.expect_speech))
         return self.expect_speech
 
 
