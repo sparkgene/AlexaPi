@@ -153,7 +153,7 @@ class Avs:
             print("[STATE:AVS] recognize no content")
             print(res.headers)
             print(res.read())
-            self.expect_speech = False
+            # self.expect_speech = False
             audio = None
         else:
             print("[STATE:AVS] recognize audio response present")
