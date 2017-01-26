@@ -17,6 +17,7 @@ try:
     while True:
         detect = GPIO.input(18)
         if detect == 1:
+            print("[STATE:HUMAN_DETECT] detected.")
             with open('recording1.wav', 'rb') as inf:
                 audio = inf.read()
                 alexa_device.send_audio(audio)
