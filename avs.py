@@ -191,6 +191,8 @@ class Avs:
                 directive = json.loads(chunk[1])
             elif chunk[0].startswith('Content-ID'):
                 directive = ""
+            print("[STATE:AVS] directive")
+            print(directive)
             return directive
 
         ret = {}
