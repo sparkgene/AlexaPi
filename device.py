@@ -68,6 +68,10 @@ class Device:
         self.__avs.put_audio(audio)
 
 
+    def send_audio(self, audio):
+        self.__avs.put_audio(audio)
+
+
     def check_audio_arrival(self):
         def play(audio):
             if audio is not None:
