@@ -55,7 +55,7 @@ class Device:
 
         self.__init_device()
 
-        t = threading.Timer(5.0, stop_recording)
+        t = threading.Timer(3.0, stop_recording)
         t.start()
 
         print("[STATE:DEVICE] recording started 5 seconds")
@@ -103,7 +103,7 @@ class Device:
     def enque(self, audio):
         print("[STATE:DEVICE] alexa response arrived.")
         with audio_queue_lock:
-            if audio is not None
+            if audio is not None:
                 self.__audio_queue.put(audio)
 
 
