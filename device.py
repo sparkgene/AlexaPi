@@ -103,7 +103,8 @@ class Device:
     def enque(self, audio):
         print("[STATE:DEVICE] alexa response arrived.")
         with audio_queue_lock:
-            self.__audio_queue.put(audio)
+            if audio is not None
+                self.__audio_queue.put(audio)
 
 
     def stop(self):
