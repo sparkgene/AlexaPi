@@ -146,7 +146,7 @@ class Avs:
         if res.status != 200 and res.status != 204:
             print(res.read())
             print("[ERROR:AVS] Bad recognize response %s" % (res.status))
-            self.expect_speech = False
+            # self.expect_speech = False
             audio = None
 
         if res.status == 204:
