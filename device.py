@@ -97,7 +97,7 @@ class Device:
             if self.__stop_device == True:
                 break
 
-            time.sleep(0.5)
+            time.sleep(0.1)
 
 
     def enque(self, audio):

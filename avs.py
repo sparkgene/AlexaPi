@@ -112,7 +112,7 @@ class Avs:
                 rf.write(audio)
                 rf.close()
                 self.recognize()
-            time.sleep(0.5)
+            time.sleep(0.1)
 
 
     def recognize(self):
