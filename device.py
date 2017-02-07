@@ -26,7 +26,7 @@ class Device:
         self.__avs = Avs(put_audio_to_device=(lambda x: self.play(x)))
         self.__avs.start()
         self.__audio_queue = Queue()
-        # self.__inp = None
+        self.__inp = None
         self.__device = "plughw:1,0"
         self.__recording = False
         self.__stop_device = False
@@ -84,7 +84,7 @@ class Device:
 
         if self.__avs.is_expect_speech():
             self.recording()
-            
+
         self.__inp.close()
 
     def check_audio_arrival(self):
