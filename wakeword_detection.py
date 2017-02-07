@@ -15,15 +15,16 @@ def interrupt_callback():
     return interrupted
 
 #models = ["resources/alexa.umdl", "resources/Stop.pmdl"]
-models = ["resources/alexa.umdl"]
+models = ["resources/alexa.umdl", "resources/go_back.pmdl", "resources/going_out.pmdl"]
 
 # capture SIGINT signal, e.g., Ctrl+C
 signal.signal(signal.SIGINT, signal_handler)
 
 detector = snowboydecoder.HotwordDetector(models, sensitivity=0.5)
 callbacks = [
+  lambda: snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING),
+  lambda: snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING),
   lambda: snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
-  #lambda: snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
 ]
 print('Listening... Press Ctrl+C to exit')
 
