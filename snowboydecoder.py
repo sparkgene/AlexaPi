@@ -190,13 +190,10 @@ class HotwordDetector(object):
                     with open('go_out.wav', 'rb') as inf:
                         audio = inf.read()
                         self.alexa_device.send_audio(audio)
-                elif ans == 3
+                elif ans == 3:
                     with open('homecoming.wav', 'rb') as inf:
                         audio = inf.read()
                         self.alexa_device.send_audio(audio)
-                    while self.alexa_device.is_idle() == False:
-                        time.sleep(0.1)
-                    break;
 
                 while self.alexa_device.is_idle() == False:
                     time.sleep(0.1)
