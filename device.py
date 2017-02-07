@@ -105,6 +105,8 @@ class Device:
         with audio_queue_lock:
             if audio is not None:
                 self.__audio_queue.put(audio)
+                print("[STATE:DEVICE] alexa response put to outgoing audio queue.")
+
 
 
     def stop(self):
