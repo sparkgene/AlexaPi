@@ -187,11 +187,11 @@ class HotwordDetector(object):
                     self.alexa_device.recording()
                     print("[STATE:SNOWBOY] reopen detection")
                 elif ans == 2:
-                    with open('go_out.wav', 'rb') as inf:
+                    with open('homecoming.wav', 'rb') as inf:
                         audio = inf.read()
                         self.alexa_device.send_audio(audio)
                 elif ans == 3:
-                    with open('homecoming.wav', 'rb') as inf:
+                    with open('go_out.wav', 'rb') as inf:
                         audio = inf.read()
                         self.alexa_device.send_audio(audio)
 
