@@ -179,23 +179,28 @@ class HotwordDetector(object):
                                          time.localtime(time.time()))
                 logger.info(message)
 
+                detected_callback[ans-1]()
+                self.stream_in.close()
+                self.stream_in = None
                 if ans == 1:
-                    detected_callback[ans-1]()
-                    self.stream_in.close()
-                    self.stream_in = None
                     print("[STATE:SNOWBOY] stop detection")
-
                     self.alexa_device.recording()
-
-                    while self.alexa_device.is_idle() == False:
-                        time.sleep(0.5)
-
                     print("[STATE:SNOWBOY] reopen detection")
-                    self.stream_in = self.open_detection_stream()
-
-                if ans == 2:
-                    self.alexa_device.stop()
+                elif ans == 2:
+                    with open('go_out.wav', 'rb') as inf:
+                        audio = inf.read()
+                        self.alexa_device.send_audio(audio)
+                elif ans == 3
+                    with open('homecoming.wav', 'rb') as inf:
+                        audio = inf.read()
+                        self.alexa_device.send_audio(audio)
+                    while self.alexa_device.is_idle() == False:
+                        time.sleep(0.1)
                     break;
+
+                while self.alexa_device.is_idle() == False:
+                    time.sleep(0.1)
+                self.stream_in = self.open_detection_stream()
             ans = 0
         logger.debug("finished.")
 
