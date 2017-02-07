@@ -31,8 +31,8 @@ class Device:
         self.__recording = False
         self.__stop_device = False
         self.__audio_playing = False
-        self.__check_audio_arrival_thread = threading.Thread(target=self.check_audio_arrival)
-        self.__check_audio_arrival_thread.start()
+        # self.__check_audio_arrival_thread = threading.Thread(target=self.check_audio_arrival)
+        # self.__check_audio_arrival_thread.start()
 
 
     def active(self):
