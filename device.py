@@ -22,8 +22,8 @@ audio_queue_lock = threading.Lock()
 class Device:
     def __init__(self):
         self.__path = os.path.realpath(__file__).rstrip(os.path.basename(__file__))
-        self.__avs = Avs(put_audio_to_device=(lambda x: self.enque(x)))
-        # self.__avs = Avs(put_audio_to_device=(lambda x: self.play(x)))
+        # self.__avs = Avs(put_audio_to_device=(lambda x: self.enque(x)))
+        self.__avs = Avs(put_audio_to_device=(lambda x: self.play(x)))
         self.__avs.start()
         self.__audio_queue = Queue()
         self.__inp = None
@@ -72,15 +72,21 @@ class Device:
         self.__avs.put_audio(audio)
 
 
+    def play(self, audio):
+        if audio is not None:
+            print("[STATE:DEVICE] start play alexa response.")
+            with open("response.mp3", 'w') as f:
+                f.write(audio)
+            cmd = "mpg123 -q %s1sec.mp3 %sresponse.mp3" % (self.__path, self.__path)
+            subprocess.call(cmd.strip().split(' '))
+            print("[STATE:DEVICE] end play alexa response.")
+
+        if self.__avs.is_expect_speech():
+            self.recording()
+        else:
+            self.__inp = None
+
     def check_audio_arrival(self):
-        def play(audio):
-            if audio is not None:
-                print("[STATE:DEVICE] start play alexa response.")
-                with open("response.mp3", 'w') as f:
-                    f.write(audio)
-                cmd = "mpg123 -q %s1sec.mp3 %sresponse.mp3" % (self.__path, self.__path)
-                subprocess.call(cmd.strip().split(' '))
-                print("[STATE:DEVICE] end play alexa response.")
 
         while True:
             if not self.__audio_queue.empty():
@@ -93,9 +99,6 @@ class Device:
                     self.recording()
                 else:
                     self.__inp = None
-
-            if self.__stop_device == True:
-                break
 
             time.sleep(0.1)
 
