@@ -66,6 +66,7 @@ class Device:
                 audio += data
         print("[STATE:DEVICE] recording End")
         self.__avs.put_audio(audio)
+        self.__inp.close()
 
 
     def send_audio(self, audio):
@@ -84,7 +85,7 @@ class Device:
         if self.__avs.is_expect_speech():
             self.recording()
         else:
-            self.__inp = None
+            self.__inp.close()
 
     def check_audio_arrival(self):
 
@@ -98,7 +99,7 @@ class Device:
                 if self.__avs.is_expect_speech():
                     self.recording()
                 else:
-                    self.__inp = None
+                    self.__inp.close()
 
             time.sleep(0.1)
 
