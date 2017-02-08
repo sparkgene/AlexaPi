@@ -27,7 +27,7 @@ class Device:
         self.__avs = Avs(put_audio_to_device=(lambda x: self.play(x)))
         self.__avs.start()
         self.__audio_queue = Queue()
-        self.__device_state - DeviceState()
+        self.__device_state = DeviceState()
         self.__inp = None
         self.__device = "plughw:1,0"
         self.__recording = False
@@ -38,7 +38,7 @@ class Device:
 
     def is_busy(self):
         return self.__device_state == DeviceState.BUSY
-        
+
     def recording(self):
         state = __device_state.get_state()
         if state == DeviceState.IDLE or state == DeviceState.EXPECTING_SPEECH:
