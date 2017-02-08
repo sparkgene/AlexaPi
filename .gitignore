@@ -65,3 +65,5 @@ creds.pyc
 #test
 test/testdata*
 result.txt
+
+.DS_Store
