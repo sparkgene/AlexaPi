@@ -124,10 +124,10 @@ class Device:
 
 
     def __init_device(self):
-        self.__inp.close()
-        self.__inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, self.__device)
-        self.__inp.setchannels(1)
-        self.__inp.setrate(16000)
-        self.__inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
-        self.__inp.setperiodsize(500)
-        self.audio = ""
+        if __inp is None
+            self.__inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, self.__device)
+            self.__inp.setchannels(1)
+            self.__inp.setrate(16000)
+            self.__inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
+            self.__inp.setperiodsize(500)
+            self.audio = ""
