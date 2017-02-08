@@ -3,9 +3,9 @@ class DeviceState:
     BUSY = 4
     RECOGNIZING = 8
     EXPECTING_SPEECH = 16
-    
+
     def __init__(self):
-        self.current_state = IDLE
+        self.current_state = DeviceState.IDLE
 
 
     def set_state(self, state):
