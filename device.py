@@ -16,6 +16,7 @@ import threading
 from memcache import Client
 from avs import Avs
 from Queue import Queue
+from device_state import DeviceState
 
 audio_queue_lock = threading.Lock()
 
@@ -26,52 +27,48 @@ class Device:
         self.__avs = Avs(put_audio_to_device=(lambda x: self.play(x)))
         self.__avs.start()
         self.__audio_queue = Queue()
+        self.__device_state - DeviceState()
         self.__inp = None
         self.__device = "plughw:1,0"
         self.__recording = False
         self.__stop_device = False
         self.__audio_playing = False
-        # self.__check_audio_arrival_thread = threading.Thread(target=self.check_audio_arrival)
+        # self.__check_record_enable_thread = threading.Thread(target=self.check_record_enable)
         # self.__check_audio_arrival_thread.start()
 
-
-    def active(self):
-        return (self.__avs.active() or self.__recording)
-
-
-    def is_idle(self):
-        return self.__inp == None
-
-
-    def wait_idle(self, seconds=0.5):
-        while self.active() == True:
-            time.sleep(seconds)
-
-
+    def is_busy(self):
+        return self.__device_state == DeviceState.BUSY
+        
     def recording(self):
-        audio = ''
-        def stop_recording():
-            self.__recording = False
+        state = __device_state.get_state()
+        if state == DeviceState.IDLE or state == DeviceState.EXPECTING_SPEECH:
+            __device_state.set_state(DeviceState.RECOGNIZING)
 
-        self.__init_device()
+            audio = ''
+            def stop_recording():
+                self.__recording = False
 
-        t = threading.Timer(3.0, stop_recording)
-        t.start()
+            self.__init_device()
 
-        print("[STATE:DEVICE] recording started 5 seconds")
-        self.__recording = True
-        while self.__recording == True:
-            l, data = self.__inp.read()
-            if l:
-                audio += data
-        print("[STATE:DEVICE] recording End")
-        self.__avs.put_audio(audio)
+            t = threading.Timer(3.0, stop_recording)
+            t.start()
 
+            print("[STATE:DEVICE] recording started 5 seconds")
+            self.__recording = True
+            while self.__recording == True:
+                l, data = self.__inp.read()
+                if l:
+                    audio += data
+            print("[STATE:DEVICE] recording End")
+            self.__avs.put_audio(audio)
+
+            __device_state.set_state(DeviceState.BUSY)
 
     def send_audio(self, audio):
+        __device_state.set_state(DeviceState.BUSY)
         self.__avs.put_audio(audio)
 
-
+    # this method run on the avs's thread
     def play(self, audio):
         if audio is not None:
             print("[STATE:DEVICE] start play alexa response.")
@@ -82,9 +79,9 @@ class Device:
             print("[STATE:DEVICE] end play alexa response.")
 
         if self.__avs.is_expect_speech():
-            self.recording()
+            __device_state.set_state(DeviceState.EXPECTING_SPEECH)
         else:
-            self.__inp.close()
+            __device_state.set_state(DeviceState.IDLE)
 
     # def check_audio_arrival(self):
     #
@@ -120,10 +117,10 @@ class Device:
 
 
     def __init_device(self):
-        if self.__inp is None:
-          self.__inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, self.__device)
-          self.__inp.setchannels(1)
-          self.__inp.setrate(16000)
-          self.__inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
-          self.__inp.setperiodsize(500)
-          self.audio = ""
+        self.__inp.close()
+        self.__inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, self.__device)
+        self.__inp.setchannels(1)
+        self.__inp.setrate(16000)
+        self.__inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
+        self.__inp.setperiodsize(500)
+        self.audio = ""

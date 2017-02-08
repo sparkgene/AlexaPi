@@ -195,8 +195,9 @@ class HotwordDetector(object):
                         audio = inf.read()
                         self.alexa_device.send_audio(audio)
 
-                while self.alexa_device.is_idle() == False:
+                while(self.alexa_device.is_busy() == True):
                     time.sleep(0.1)
+                    
                 self.stream_in = self.open_detection_stream()
             ans = 0
         logger.debug("finished.")
