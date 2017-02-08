@@ -40,9 +40,9 @@ class Device:
         return self.__device_state == DeviceState.BUSY
 
     def recording(self):
-        state = __device_state.get_state()
+        state = self.__device_state.get_state()
         if state == DeviceState.IDLE or state == DeviceState.EXPECTING_SPEECH:
-            __device_state.set_state(DeviceState.RECOGNIZING)
+            self.__device_state.set_state(DeviceState.RECOGNIZING)
 
             audio = ''
             def stop_recording():
@@ -62,10 +62,10 @@ class Device:
             print("[STATE:DEVICE] recording End")
             self.__avs.put_audio(audio)
 
-            __device_state.set_state(DeviceState.BUSY)
+            self.__device_state.set_state(DeviceState.BUSY)
 
     def send_audio(self, audio):
-        __device_state.set_state(DeviceState.BUSY)
+        self.__device_state.set_state(DeviceState.BUSY)
         self.__avs.put_audio(audio)
 
     # this method run on the avs's thread
@@ -79,9 +79,9 @@ class Device:
             print("[STATE:DEVICE] end play alexa response.")
 
         if self.__avs.is_expect_speech():
-            __device_state.set_state(DeviceState.EXPECTING_SPEECH)
+            self.__device_state.set_state(DeviceState.EXPECTING_SPEECH)
         else:
-            __device_state.set_state(DeviceState.IDLE)
+            self.__device_state.set_state(DeviceState.IDLE)
 
     # def check_audio_arrival(self):
     #
