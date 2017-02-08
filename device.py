@@ -33,11 +33,18 @@ class Device:
         self.__recording = False
         self.__stop_device = False
         self.__audio_playing = False
-        # self.__check_record_enable_thread = threading.Thread(target=self.check_record_enable)
-        # self.__check_audio_arrival_thread.start()
+        self.__watch_state_thread = threading.Thread(target=self.watch_state)
+        self.__watch_state_thread.start()
 
     def is_busy(self):
-        return self.__device_state == DeviceState.BUSY
+        return self.__device_state != DeviceState.IDLE
+
+    def __watch_state(self):
+        state = self.__device_state.get_state()
+        while True:
+            if state == DeviceState.IDLE or state == DeviceState.EXPECTING_SPEECH:
+                self.recording()
+            time.sleep(0.1)
 
     def recording(self):
         state = self.__device_state.get_state()

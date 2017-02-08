@@ -13,4 +13,5 @@ class DeviceState:
 
 
     def get_state(self):
+        print(("[STATE:DEVICE_STATE] device status (%s)" % (self.current_state)))
         return self.current_state
