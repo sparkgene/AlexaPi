@@ -33,7 +33,7 @@ class Device:
         self.__recording = False
         self.__stop_device = False
         self.__audio_playing = False
-        self.__watch_state_thread = threading.Thread(target=self.watch_state)
+        self.__watch_state_thread = threading.Thread(target=self.__watch_state)
         self.__watch_state_thread.start()
 
     def is_busy(self):
