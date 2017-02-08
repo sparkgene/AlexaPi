@@ -124,7 +124,7 @@ class Device:
 
 
     def __init_device(self):
-        if __inp is None:
+        if self.__inp is None:
             self.__inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, self.__device)
             self.__inp.setchannels(1)
             self.__inp.setrate(16000)
