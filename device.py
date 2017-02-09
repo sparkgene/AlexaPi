@@ -37,7 +37,7 @@ class Device:
     def is_expect_speech(self):
         return __avs.is_expect_speech()
 
-    def recording(self):
+    def recording(self, inp):
         state = self.__device_state.get_state()
         if state == DeviceState.IDLE or state == DeviceState.EXPECTING_SPEECH:
             self.__device_state.set_state(DeviceState.RECOGNIZING)
@@ -66,6 +66,7 @@ class Device:
     def send_audio(self, audio):
         self.__device_state.set_state(DeviceState.BUSY)
         self.__avs.put_audio(audio)
+        
 
 
     # this method run on the avs's thread

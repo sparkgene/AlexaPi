@@ -107,6 +107,7 @@ class HotwordDetector(object):
 
     def open_detection_stream(self):
         def audio_callback(in_data, frame_count, time_info, status):
+            print("[STATE:SNOWBOY] stream buffering")
             self.ring_buffer.extend(in_data)
             play_data = chr(0) * len(in_data)
             return play_data, pyaudio.paContinue
@@ -187,7 +188,6 @@ class HotwordDetector(object):
                 logger.info(message)
 
                 detected_callback[ans-1]()
-            print(ans)
             ans = 0
         logger.debug("finished.")
 
