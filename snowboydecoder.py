@@ -138,7 +138,7 @@ class HotwordDetector(object):
             "callbacks (%d)" % (self.num_hotwords, len(detected_callback))
 
         logger.debug("detecting...")
-        self.recoder.open()
+        self.recorder.open()
 
         while self.running:
             if interrupt_check():
