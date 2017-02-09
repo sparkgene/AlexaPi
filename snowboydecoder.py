@@ -102,6 +102,7 @@ class HotwordDetector(object):
             self.detector.NumChannels() * self.detector.SampleRate() * 5)
         self.audio = pyaudio.PyAudio()
         self.stream_in = None
+        self.running = True
 
 
     def open_detection_stream(self):
@@ -166,7 +167,7 @@ class HotwordDetector(object):
         logger.debug("detecting...")
         self.open_detection_stream()
 
-        while True:
+        while self.running:
             if interrupt_check():
                 logger.debug("detect voice break")
                 break
@@ -198,3 +199,4 @@ class HotwordDetector(object):
         self.stream_in.stop_stream()
         self.stream_in.close()
         self.audio.terminate()
+        self.running = False
