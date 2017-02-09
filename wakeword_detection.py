@@ -80,6 +80,7 @@ def stop():
         alexa_device.stop()
         recorder.stop()
 
+
 recorder = Recorder()
 models = ["resources/alexa.umdl", "resources/go_back.pmdl", "resources/going_out.pmdl", "resources/Stop.pmdl"]
 callbacks = [alexa, go_back, go_out, stop]

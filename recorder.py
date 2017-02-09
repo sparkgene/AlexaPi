@@ -40,7 +40,7 @@ class Recorder(object):
         if self.stream_in is None:
             stream_in = self.audio.open(
                 input=True, output=False,
-                format=8,
+                format=pyaudio.paInt16,
                 channels=1,
                 rate=16000,
                 frames_per_buffer=2048,
