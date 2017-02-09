@@ -11,7 +11,6 @@ import time
 from Queue import Queue
 import re
 
-voice_queue_lock = threading.Lock()
 
 class Avs:
     ENDPOINT = 'avs-alexa-na.amazon.com'
@@ -98,16 +97,14 @@ class Avs:
 
     def put_audio(self, audio):
         print("[STATE:AVS] customer voice arrival")
-        with voice_queue_lock:
-            self.voice_queue.put(audio)
+        self.voice_queue.put(audio)
 
 
     def check_audio_arrival(self):
         while self.stop_signal.is_set() == False:
             if self.voice_queue.empty() == False:
                 print("[STATE:AVS] detected audio arrival")
-                with voice_queue_lock:
-                    audio = self.voice_queue.get()
+                audio = self.voice_queue.get()
                 rf = open('recording.wav', 'w')
                 rf.write(audio)
                 rf.close()
