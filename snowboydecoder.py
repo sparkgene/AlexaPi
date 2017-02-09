@@ -58,22 +58,11 @@ class RingBuffer(object):
 
 
 class HotwordDetector(object):
-    """
-    Snowboy decoder to detect whether a keyword specified by `decoder_model`
-    exists in a microphone input stream.
-
-    :param decoder_model: decoder model file path, a string or a list of strings
-    :param resource: resource file path.
-    :param sensitivity: decoder sensitivity, a float of a list of floats.
-                              The bigger the value, the more senstive the
-                              decoder. If an empty list is provided, then the
-                              default sensitivity in the model will be used.
-    :param audio_gain: multiply input volume by this factor.
-    """
     def __init__(self, decoder_model,
                  resource=RESOURCE_FILE,
                  sensitivity=[],
-                 audio_gain=1):
+                 audio_gain=1,
+                 recorder=None):
 
         tm = type(decoder_model)
         ts = type(sensitivity)
@@ -97,59 +86,42 @@ class HotwordDetector(object):
         sensitivity_str = ",".join([str(t) for t in sensitivity])
         if len(sensitivity) != 0:
             self.detector.SetSensitivity(sensitivity_str.encode())
-
-        self.ring_buffer = RingBuffer(
-            self.detector.NumChannels() * self.detector.SampleRate() * 5)
-        self.audio = pyaudio.PyAudio()
-        self.stream_in = None
+        self.recorder = recorder
+        # self.ring_buffer = RingBuffer(
+        #     self.detector.NumChannels() * self.detector.SampleRate() * 5)
+        # self.audio = pyaudio.PyAudio()
+        # self.stream_in = None
         self.running = True
 
 
-    def open_detection_stream(self):
-        def audio_callback(in_data, frame_count, time_info, status):
-            print("[STATE:SNOWBOY] stream buffering")
-            self.ring_buffer.extend(in_data)
-            play_data = chr(0) * len(in_data)
-            return play_data, pyaudio.paContinue
-
-        if self.stream_in is None:
-            audio_format = self.audio.get_format_from_width(self.detector.BitsPerSample() / 8)
-            channels = self.detector.NumChannels()
-            rate = self.detector.SampleRate()
-            print(audio_format)
-            print(channels)
-            print(rate)
-
-            stream_in = self.audio.open(
-                input=True, output=False,
-                format=audio_format,
-                channels=channels,
-                rate=rate,
-                frames_per_buffer=2048,
-                stream_callback=audio_callback)
-            self.stream_in = stream_in
+    # def open_detection_stream(self):
+    #     def audio_callback(in_data, frame_count, time_info, status):
+    #         self.ring_buffer.extend(in_data)
+    #         play_data = chr(0) * len(in_data)
+    #         return play_data, pyaudio.paContinue
+    #
+    #     if self.stream_in is None:
+    #         audio_format = self.audio.get_format_from_width(self.detector.BitsPerSample() / 8)
+    #         channels = self.detector.NumChannels()
+    #         rate = self.detector.SampleRate()
+    #         print(audio_format)
+    #         print(channels)
+    #         print(rate)
+    #
+    #         stream_in = self.audio.open(
+    #             input=True, output=False,
+    #             format=audio_format,
+    #             channels=channels,
+    #             rate=rate,
+    #             frames_per_buffer=2048,
+    #             stream_callback=audio_callback)
+    #         self.stream_in = stream_in
 
 
 
     def start(self, detected_callback=None,
               interrupt_check=lambda: False,
               sleep_time=0.03):
-        """
-        Start the voice detector. For every `sleep_time` second it checks the
-        audio buffer for triggering keywords. If detected, then call
-        corresponding function in `detected_callback`, which can be a single
-        function (single model) or a list of callback functions (multiple
-        models). Every loop it also calls `interrupt_check` -- if it returns
-        True, then breaks from the loop and return.
-
-        :param detected_callback: a function or list of functions. The number of
-                                  items must match the number of models in
-                                  `decoder_model`.
-        :param interrupt_check: a function that returns True if the main loop
-                                needs to stop.
-        :param float sleep_time: how much time in second every loop waits.
-        :return: None
-        """
 
         if interrupt_check():
             logger.debug("detect voice return")
@@ -166,19 +138,23 @@ class HotwordDetector(object):
             "callbacks (%d)" % (self.num_hotwords, len(detected_callback))
 
         logger.debug("detecting...")
-        self.open_detection_stream()
+        self.recoder.open()
 
         while self.running:
             if interrupt_check():
                 logger.debug("detect voice break")
                 break
-            data = self.ring_buffer.get()
-            if len(data) == 0:
-                # print("[STATE:SNOWBOY] Nothing is audio.")
-                time.sleep(sleep_time)
-                continue
 
-            ans = self.detector.RunDetection(data)
+            if self.recorder.get_detection_state() == True:
+                data = self.recorder.get_data()
+                if len(data) == 0:
+                    # print("[STATE:SNOWBOY] Nothing is audio.")
+                    time.sleep(sleep_time)
+                    continue
+
+                ans = self.detector.RunDetection(data)
+            else:
+                ans = 0
 
             if ans == -1:
                 logger.warning("Error initializing streams or reading audio data")
@@ -188,7 +164,6 @@ class HotwordDetector(object):
                 logger.info(message)
 
                 detected_callback[ans-1]()
-            ans = 0
         logger.debug("finished.")
 
 

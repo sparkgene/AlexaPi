@@ -6,6 +6,7 @@ import time
 import signal
 import snowboydecoder
 from device import Device
+from recorder import Recorder
 
 interrupted = False
 
@@ -13,7 +14,8 @@ TOP_DIR = os.path.dirname(os.path.abspath(__file__))
 DETECT_DING = os.path.join(TOP_DIR, "resources/ding.wav")
 DETECT_DONG = os.path.join(TOP_DIR, "resources/dong.wav")
 
-alexa_device = Device()
+recorder = None
+alexa_device = None
 detector = None
 
 
@@ -52,18 +54,21 @@ def direct_send_to_alexa(wav_file=None):
 def alexa():
     play_beep(fname=DETECT_DING)
     print("[STATE:WAKE] detected alexa")
+    recorder.set_detection_state(False)
     alexa_device.recording()
 
 
 def go_back():
     play_beep(fname=DETECT_DING)
     print("[STATE:WAKE] detected go back")
+    recorder.set_detection_state(False)
     direct_send_to_alexa('resources/homecoming.wav')
 
 
 def go_out():
     play_beep(fname=DETECT_DING)
     print("[STATE:WAKE] detected going out")
+    recorder.set_detection_state(False)
     direct_send_to_alexa('resources/go_out.wav')
 
 
@@ -73,17 +78,13 @@ def stop():
     if not detector is None:
         detector.terminate()
         alexa_device.stop()
+        recorder.stop()
 
-
-#models = ["resources/alexa.umdl", "resources/Stop.pmdl"]
+recorder = Recorder()
 models = ["resources/alexa.umdl", "resources/go_back.pmdl", "resources/going_out.pmdl", "resources/Stop.pmdl"]
-
-# capture SIGINT signal, e.g., Ctrl+C
-signal.signal(signal.SIGINT, signal_handler)
-
-detector = snowboydecoder.HotwordDetector(models, sensitivity=0.5)
 callbacks = [alexa, go_back, go_out, stop]
-print('Listening... Press Ctrl+C to exit')
+detector = snowboydecoder.HotwordDetector(models, sensitivity=0.5, recorder=recorder)
+alexa_device(recorder=recorder)
 
 # main loop
 detector.start(detected_callback=callbacks,
