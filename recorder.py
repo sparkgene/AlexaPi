@@ -1,3 +1,4 @@
+import collections
 import pyaudio
 
 class RingBuffer(object):
