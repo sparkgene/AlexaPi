@@ -6,6 +6,7 @@ from device import Device
 
 interrupted = False
 
+TOP_DIR = os.path.dirname(os.path.abspath(__file__))
 DETECT_DING = os.path.join(TOP_DIR, "resources/ding.wav")
 DETECT_DONG = os.path.join(TOP_DIR, "resources/dong.wav")
 
