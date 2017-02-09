@@ -38,7 +38,7 @@ class Device:
     def is_expect_speech(self):
         return __avs.is_expect_speech()
 
-    def recording(self, inp):
+    def recording(self):
         state = self.__device_state.get_state()
         if state == DeviceState.IDLE or state == DeviceState.EXPECTING_SPEECH:
             self.__device_state.set_state(DeviceState.RECOGNIZING)
