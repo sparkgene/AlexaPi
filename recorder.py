@@ -24,8 +24,10 @@ class Recorder(object):
         self.ring_buffer = RingBuffer(80000)
         self.detection_enabled = True
 
+
     def get_detection_state(self):
         return self.detection_enabled
+
 
     def set_detection_state(self, val):
         self.detection_enabled = val
@@ -47,8 +49,10 @@ class Recorder(object):
                 stream_callback=audio_callback)
             self.stream_in = stream_in
 
+
     def get_data(self):
         return self.ring_buffer.get()
+
 
     def stop(self):
         self.stream_in.stop_stream()

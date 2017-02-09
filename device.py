@@ -6,14 +6,13 @@ import signal
 import random
 import time
 import RPi.GPIO as GPIO
-import alsaaudio
+# import alsaaudio
 import wave
-import random
 from creds import *
 import requests
 import re
 import threading
-from memcache import Client
+# from memcache import Client
 from avs import Avs
 from Queue import Queue
 from device_state import DeviceState
@@ -35,31 +34,17 @@ class Device:
         self.__stop_device = False
         self.__audio_playing = False
 
+
     def is_expect_speech(self):
         return __avs.is_expect_speech()
+
 
     def recording(self):
         state = self.__device_state.get_state()
         if state == DeviceState.IDLE or state == DeviceState.EXPECTING_SPEECH:
             self.__device_state.set_state(DeviceState.RECOGNIZING)
 
-            # audio = ''
-            # def stop_recording():
-            #     self.__recording = False
-            #
-            # self.__init_device()
-            #
-            # t = threading.Timer(3.0, stop_recording)
-            # t.start()
-            #
-            # print("[STATE:DEVICE] recording started 5 seconds")
-            # self.__recording = True
-            # while self.__recording == True:
-            #     l, data = self.__inp.read()
-            #     if l:
-            #         audio += data
-            # print("[STATE:DEVICE] recording End")
-            print("[STATE:DEVICE] recording started 5 seconds")
+            print("[STATE:DEVICE] recording started 3 seconds")
             time.sleep(3.0)
             print("[STATE:DEVICE] recording end")
             audio = self.recorder.get_data()
@@ -92,13 +77,3 @@ class Device:
 
     def stop(self):
         self.__avs.close()
-
-
-    # def __init_device(self):
-    #     if self.__inp is None:
-    #         self.__inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, self.__device)
-    #         self.__inp.setchannels(1)
-    #         self.__inp.setrate(16000)
-    #         self.__inp.setformat(alsaaudio.PCM_FORMAT_S16_LE)
-    #         self.__inp.setperiodsize(500)
-    #         self.audio = ""
