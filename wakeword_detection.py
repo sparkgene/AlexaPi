@@ -58,13 +58,13 @@ def alexa():
 def go_back():
     play_beep(fname=DETECT_DING)
     print("[STATE:SNOWBOY] detect go back")
-    direct_send_to_alexa('homecoming.wav')
+    direct_send_to_alexa('resources/homecoming.wav')
 
 
 def go_out():
     play_beep(fname=DETECT_DING)
     print("[STATE:SNOWBOY] detect going out")
-    direct_send_to_alexa('go_out.wav')
+    direct_send_to_alexa('resources/go_out.wav')
 
 
 def stop():
