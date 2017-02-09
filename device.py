@@ -81,37 +81,9 @@ class Device:
         else:
             self.__device_state.set_state(DeviceState.IDLE)
 
-    # def check_audio_arrival(self):
-    #
-    #     while True:
-    #         if not self.__audio_queue.empty():
-    #             print("[STATE:DEVICE] play alexa response.")
-    #             with audio_queue_lock:
-    #                 audio = self.__audio_queue.get()
-    #             play(audio)
-    #
-    #             if self.__avs.is_expect_speech():
-    #                 self.recording()
-    #             else:
-    #                 self.__inp.close()
-    #
-    #         time.sleep(0.1)
-    #
-    #
-    # def enque(self, audio):
-    #     print("[STATE:DEVICE] alexa response arrived.")
-    #     with audio_queue_lock:
-    #         if audio is not None:
-    #             self.__audio_queue.put(audio)
-    #             print("[STATE:DEVICE] alexa response put to outgoing audio queue.")
-
-
 
     def stop(self):
         self.__avs.close()
-        # self.__inp = None
-        # self.__check_audio_arrival_thread = None
-        # self.__stop_device = True
 
 
     def __init_device(self):

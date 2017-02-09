@@ -187,6 +187,7 @@ class HotwordDetector(object):
                 logger.info(message)
 
                 detected_callback[ans-1]()
+            print(ans)
             ans = 0
         logger.debug("finished.")
 

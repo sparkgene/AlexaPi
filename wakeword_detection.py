@@ -51,25 +51,25 @@ def direct_send_to_alexa(wav_file=None):
 
 def alexa():
     play_beep(fname=DETECT_DING)
-    print("[STATE:SNOWBOY] detect alexa")
+    print("[STATE:WAKE] detected alexa")
     alexa_device.recording()
 
 
 def go_back():
     play_beep(fname=DETECT_DING)
-    print("[STATE:SNOWBOY] detect go back")
+    print("[STATE:WAKE] detected go back")
     direct_send_to_alexa('resources/homecoming.wav')
 
 
 def go_out():
     play_beep(fname=DETECT_DING)
-    print("[STATE:SNOWBOY] detect going out")
+    print("[STATE:WAKE] detected going out")
     direct_send_to_alexa('resources/go_out.wav')
 
 
 def stop():
     play_beep(fname=DETECT_DONG)
-    print("[STATE:SNOWBOY] detect stop")
+    print("[STATE:WAKE] detected stop")
     if not detector is None:
         detector.terminate()
         alexa_device.stop()
