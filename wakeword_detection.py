@@ -1,6 +1,8 @@
 import sys
 import os
 import wave
+import pyaudio
+import time
 import signal
 import snowboydecoder
 from device import Device
