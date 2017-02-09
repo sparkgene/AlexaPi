@@ -167,9 +167,11 @@ class HotwordDetector(object):
                 break
             data = self.ring_buffer.get()
             if len(data) == 0:
+                print("[STATE:SNOWBOY] Skip detection. silent.")
                 time.sleep(sleep_time)
                 continue
 
+            print("[STATE:SNOWBOY] Run Detection")
             ans = self.detector.RunDetection(data)
             if ans == -1:
                 logger.warning("Error initializing streams or reading audio data")
