@@ -59,8 +59,10 @@ class Device:
             #     if l:
             #         audio += data
             # print("[STATE:DEVICE] recording End")
+            print("[STATE:DEVICE] recording started 5 seconds")
             time.sleep(3.0)
-            self.recorder.get_data()
+            print("[STATE:DEVICE] recording end")
+            audio = self.recorder.get_data()
             self.__avs.put_audio(audio)
 
             self.__device_state.set_state(DeviceState.BUSY)
