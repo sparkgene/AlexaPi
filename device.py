@@ -71,12 +71,10 @@ class Device:
     # this method run on the avs's thread
     def play(self, audio):
         if audio is not None:
-            print("[STATE:DEVICE] start play alexa response.")
             with open("response.mp3", 'w') as f:
                 f.write(audio)
             cmd = "mpg123 -q %s1sec.mp3 %sresponse.mp3" % (self.__path, self.__path)
             subprocess.call(cmd.strip().split(' '))
-            print("[STATE:DEVICE] end play alexa response.")
 
         if self.__avs.is_expect_speech():
             self.__device_state.set_state(DeviceState.EXPECTING_SPEECH)

@@ -15,8 +15,8 @@ logger.setLevel(logging.INFO)
 TOP_DIR = os.path.dirname(os.path.abspath(__file__))
 
 RESOURCE_FILE = os.path.join(TOP_DIR, "resources/common.res")
-DETECT_DING = os.path.join(TOP_DIR, "resources/ding.wav")
-DETECT_DONG = os.path.join(TOP_DIR, "resources/dong.wav")
+# DETECT_DING = os.path.join(TOP_DIR, "resources/ding.wav")
+# DETECT_DONG = os.path.join(TOP_DIR, "resources/dong.wav")
 
 
 class RingBuffer(object):
@@ -35,26 +35,26 @@ class RingBuffer(object):
         return tmp
 
 
-def play_audio_file(fname=DETECT_DING):
-    """Simple callback function to play a wave file. By default it plays
-    a Ding sound.
-
-    :param str fname: wave file name
-    :return: None
-    """
-    ding_wav = wave.open(fname, 'rb')
-    ding_data = ding_wav.readframes(ding_wav.getnframes())
-    audio = pyaudio.PyAudio()
-    stream_out = audio.open(
-        format=audio.get_format_from_width(ding_wav.getsampwidth()),
-        channels=ding_wav.getnchannels(),
-        rate=ding_wav.getframerate(), input=False, output=True)
-    stream_out.start_stream()
-    stream_out.write(ding_data)
-    time.sleep(0.2)
-    stream_out.stop_stream()
-    stream_out.close()
-    audio.terminate()
+# def play_audio_file(fname=DETECT_DING):
+#     """Simple callback function to play a wave file. By default it plays
+#     a Ding sound.
+#
+#     :param str fname: wave file name
+#     :return: None
+#     """
+#     ding_wav = wave.open(fname, 'rb')
+#     ding_data = ding_wav.readframes(ding_wav.getnframes())
+#     audio = pyaudio.PyAudio()
+#     stream_out = audio.open(
+#         format=audio.get_format_from_width(ding_wav.getsampwidth()),
+#         channels=ding_wav.getnchannels(),
+#         rate=ding_wav.getframerate(), input=False, output=True)
+#     stream_out.start_stream()
+#     stream_out.write(ding_data)
+#     time.sleep(0.2)
+#     stream_out.stop_stream()
+#     stream_out.close()
+#     audio.terminate()
 
 
 class HotwordDetector(object):
@@ -102,7 +102,6 @@ class HotwordDetector(object):
             self.detector.NumChannels() * self.detector.SampleRate() * 5)
         self.audio = pyaudio.PyAudio()
         self.stream_in = None
-        self.alexa_device = Device()
 
 
     def open_detection_stream(self):
@@ -112,19 +111,24 @@ class HotwordDetector(object):
             return play_data, pyaudio.paContinue
 
         if self.stream_in is None:
-            return self.audio.open(
+            audio_format = self.audio.get_format_from_width(self.detector.BitsPerSample() / 8)
+            channels = self.detector.NumChannels()
+            rate = self.detector.SampleRate()
+            print(audio_format)
+            print(channels)
+            print(rate)
+
+            stream_in = self.audio.open(
                 input=True, output=False,
-                format=self.audio.get_format_from_width(
-                    self.detector.BitsPerSample() / 8),
-                channels=self.detector.NumChannels(),
-                rate=self.detector.SampleRate(),
+                format=audio_format,
+                channels=chunnels,
+                rate=rate,
                 frames_per_buffer=2048,
                 stream_callback=audio_callback)
-        else:
-            return self.stream_in
 
 
-    def start(self, detected_callback=play_audio_file,
+
+    def start(self, detected_callback=None,
               interrupt_check=lambda: False,
               sleep_time=0.03):
         """
@@ -166,40 +170,20 @@ class HotwordDetector(object):
                 break
             data = self.ring_buffer.get()
             if len(data) == 0:
-                print("[STATE:SNOWBOY] Skip detection. silent.")
+                # print("[STATE:SNOWBOY] Nothing is audio.")
                 time.sleep(sleep_time)
                 continue
 
-            if not self.alexa_device.is_expect_speech():
-                print("[STATE:SNOWBOY] Run Detection")
-                self.stream_in = self.open_detection_stream()
-                ans = self.detector.RunDetection(data)
-            else:
-                ans = 0
+            ans = self.detector.RunDetection(data)
 
             if ans == -1:
                 logger.warning("Error initializing streams or reading audio data")
             elif ans > 0:
                 message = "Keyword " + str(ans) + " detected at time: "
-                message += time.strftime("%Y-%m-%d %H:%M:%S",
-                                         time.localtime(time.time()))
+                message += time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
                 logger.info(message)
 
                 detected_callback[ans-1]()
-                self.stream_in.close()
-                self.stream_in = None
-                if ans == 1:
-                    print("[STATE:SNOWBOY] stop detection")
-                    self.alexa_device.recording()
-                    print("[STATE:SNOWBOY] reopen detection")
-                elif ans == 2:
-                    with open('homecoming.wav', 'rb') as inf:
-                        audio = inf.read()
-                        self.alexa_device.send_audio(audio)
-                elif ans == 3:
-                    with open('go_out.wav', 'rb') as inf:
-                        audio = inf.read()
-                        self.alexa_device.send_audio(audio)
             ans = 0
         logger.debug("finished.")
 
