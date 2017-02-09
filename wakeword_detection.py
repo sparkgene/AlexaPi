@@ -1,7 +1,8 @@
-import snowboydecoder
 import sys
 import os
+import wave
 import signal
+import snowboydecoder
 from device import Device
 
 interrupted = False
