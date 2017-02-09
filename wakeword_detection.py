@@ -69,6 +69,7 @@ def go_out():
 
 def stop():
     play_beep(fname=DETECT_DONG)
+    print("[STATE:SNOWBOY] detect stop")
     if not detector is None:
         detector.terminate()
 
