@@ -121,7 +121,7 @@ class HotwordDetector(object):
             stream_in = self.audio.open(
                 input=True, output=False,
                 format=audio_format,
-                channels=chunnels,
+                channels=channels,
                 rate=rate,
                 frames_per_buffer=2048,
                 stream_callback=audio_callback)
