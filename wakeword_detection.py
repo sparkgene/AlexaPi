@@ -72,6 +72,7 @@ def stop():
     print("[STATE:SNOWBOY] detect stop")
     if not detector is None:
         detector.terminate()
+        alexa_device.stop()
 
 
 #models = ["resources/alexa.umdl", "resources/Stop.pmdl"]
