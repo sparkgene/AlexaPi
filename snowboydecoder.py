@@ -154,6 +154,7 @@ class HotwordDetector(object):
 
                 ans = self.detector.RunDetection(data)
             else:
+                time.sleep(sleep_time)
                 ans = 0
 
             if ans == -1:
@@ -172,5 +173,4 @@ class HotwordDetector(object):
         Terminate audio stream. Users cannot call start() again to detect.
         :return: None
         """
-        self.audio.terminate()
         self.running = False
