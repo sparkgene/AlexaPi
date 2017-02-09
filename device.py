@@ -33,18 +33,7 @@ class Device:
         self.__recording = False
         self.__stop_device = False
         self.__audio_playing = False
-        self.__watch_state_thread = threading.Thread(target=self.__watch_state)
-        self.__watch_state_thread.start()
 
-    def is_busy(self):
-        return self.__device_state != DeviceState.IDLE
-
-    def __watch_state(self):
-        state = self.__device_state.get_state()
-        while True:
-            if state == DeviceState.IDLE or state == DeviceState.EXPECTING_SPEECH:
-                self.recording()
-            time.sleep(0.1)
 
     def recording(self):
         state = self.__device_state.get_state()
@@ -71,9 +60,11 @@ class Device:
 
             self.__device_state.set_state(DeviceState.BUSY)
 
+
     def send_audio(self, audio):
         self.__device_state.set_state(DeviceState.BUSY)
         self.__avs.put_audio(audio)
+
 
     # this method run on the avs's thread
     def play(self, audio):
