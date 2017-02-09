@@ -102,7 +102,6 @@ class HotwordDetector(object):
             self.detector.NumChannels() * self.detector.SampleRate() * 5)
         self.audio = pyaudio.PyAudio()
         self.stream_in = None
-        self.stream_in = self.open_detection_stream()
         self.alexa_device = Device()
 
 
@@ -171,8 +170,13 @@ class HotwordDetector(object):
                 time.sleep(sleep_time)
                 continue
 
-            print("[STATE:SNOWBOY] Run Detection")
-            ans = self.detector.RunDetection(data)
+            if not self.alexa_device.is_expect_speech():
+                print("[STATE:SNOWBOY] Run Detection")
+                self.stream_in = self.open_detection_stream()
+                ans = self.detector.RunDetection(data)
+            else:
+                ans = 0
+
             if ans == -1:
                 logger.warning("Error initializing streams or reading audio data")
             elif ans > 0:
@@ -182,8 +186,8 @@ class HotwordDetector(object):
                 logger.info(message)
 
                 detected_callback[ans-1]()
-                # self.stream_in.close()
-                # self.stream_in = None
+                self.stream_in.close()
+                self.stream_in = None
                 if ans == 1:
                     print("[STATE:SNOWBOY] stop detection")
                     self.alexa_device.recording()
@@ -196,8 +200,6 @@ class HotwordDetector(object):
                     with open('go_out.wav', 'rb') as inf:
                         audio = inf.read()
                         self.alexa_device.send_audio(audio)
-
-                # self.stream_in = self.open_detection_stream()
             ans = 0
         logger.debug("finished.")
 

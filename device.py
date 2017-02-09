@@ -34,6 +34,8 @@ class Device:
         self.__stop_device = False
         self.__audio_playing = False
 
+    def is_expect_speech(self):
+        return __avs.is_expect_speech()
 
     def recording(self):
         state = self.__device_state.get_state()
