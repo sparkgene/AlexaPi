@@ -125,6 +125,7 @@ class HotwordDetector(object):
                 rate=rate,
                 frames_per_buffer=2048,
                 stream_callback=audio_callback)
+            self.stream_in = stream_in
 
 
 
@@ -163,6 +164,7 @@ class HotwordDetector(object):
             "callbacks (%d)" % (self.num_hotwords, len(detected_callback))
 
         logger.debug("detecting...")
+        self.open_detection_stream()
 
         while True:
             if interrupt_check():
