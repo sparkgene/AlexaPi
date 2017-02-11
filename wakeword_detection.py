@@ -82,7 +82,7 @@ def stop():
 
 
 recorder = Recorder()
-models = ["resources/alexa.umdl", "resources/go_back.pmdl", "resources/going_out.pmdl", "resources/Stop.pmdl"]
+models = ["resources/alexa.umdl", "resources/go_back.pmdl", "resources/go_out.pmdl", "resources/Stop.pmdl"]
 callbacks = [alexa, go_back, go_out, stop]
 detector = snowboydecoder.HotwordDetector(models, sensitivity=0.5, recorder=recorder)
 alexa_device = Device(recorder=recorder)
