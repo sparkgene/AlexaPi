@@ -80,6 +80,7 @@ class HotwordDetector(object):
                 logger.debug("detect voice break")
                 break
 
+            detect_from_sensor = 0
             if self.recorder.get_detection_state() == True:
                 data = self.recorder.get_data()
                 if len(data) == 0:
