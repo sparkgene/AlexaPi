@@ -4,7 +4,6 @@ import wave
 import pyaudio
 import time
 import signal
-import RPi.GPIO as GPIO
 import snowboydecoder
 from device import Device
 from recorder import Recorder

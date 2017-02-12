@@ -7,6 +7,7 @@ import time
 import wave
 import os
 import logging
+import RPi.GPIO as GPIO
 from device import Device
 
 logging.basicConfig()
@@ -100,7 +101,7 @@ class HotwordDetector(object):
                 detected_callback[ans-1]()
             elif detect_from_sensor == 1:
                 sensor_detect_callback()
-                
+
         logger.debug("finished.")
 
 
