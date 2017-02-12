@@ -16,6 +16,8 @@ TOP_DIR = os.path.dirname(os.path.abspath(__file__))
 
 RESOURCE_FILE = os.path.join(TOP_DIR, "resources/common.res")
 
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(18, GPIO.IN)
 
 class HotwordDetector(object):
     def __init__(self, decoder_model,
@@ -52,7 +54,8 @@ class HotwordDetector(object):
 
     def start(self, detected_callback=None,
               interrupt_check=lambda: False,
-              sleep_time=0.03):
+              sleep_time=0.03,
+              sensor_detect_callback=None):
 
         if interrupt_check():
             logger.debug("detect voice return")
@@ -82,8 +85,8 @@ class HotwordDetector(object):
                     # print("[STATE:SNOWBOY] Nothing is audio.")
                     time.sleep(sleep_time)
                     continue
-
                 ans = self.detector.RunDetection(data)
+                detect_from_sensor = GPIO.input(18)
             else:
                 time.sleep(sleep_time)
                 ans = 0
@@ -94,8 +97,10 @@ class HotwordDetector(object):
                 message = "Keyword " + str(ans) + " detected at time: "
                 message += time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
                 logger.info(message)
-
                 detected_callback[ans-1]()
+            elif detect_from_sensor == 1:
+                sensor_detect_callback()
+                
         logger.debug("finished.")
 
 

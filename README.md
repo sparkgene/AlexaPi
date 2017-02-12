@@ -20,18 +20,15 @@ This is the code needed to Turn a Raspberry Pi into a client for Amazon's Alexa 
 
 You will need:
 * A Raspberry Pi
-* An SD Card with a fresh install of Raspbian (tested against build 2015-11-21 Jessie)
+* An SD Card with a fresh install of Raspbian
 * An External Speaker with 3.5mm Jack
 * A USB Sound Dongle and Microphone
-
-### Requirments Libraries
 * Hyper
 https://github.com/Lukasa/hyper
-
 * snowboy
 https://github.com/Kitt-AI/snowboy
 
-### Needs Amazon.com account 
+### Needs Amazon.com account
 Next you need to obtain a set of credentials from Amazon to use the Alexa Voice service, login at http://developer.amazon.com and Goto Alexa then Alexa Voice Service
 You need to create a new product type as a Device, for the ID use something like AlexaPi, create a new security profile and under the web settings allowed origins put http://localhost:5000 and as a return URL put http://localhost:5000/code you can also create URLs replacing localhost with the IP of your Pi  eg http://192.168.1.123:5000
 Make a note of these credentials you will be asked for them during the install process
@@ -43,7 +40,7 @@ Boot your fresh Pi and login to a command prompt as root.
 Make sure you are in /root
 
 Clone this repo to the Pi
-`git clone https://github.com/sammachin/AlexaPi.git`
+`git clone https://github.com/jaws-ug-kobe/AlexaPi.git`
 Run the setup script
 `./setup.sh`
 
@@ -66,7 +63,7 @@ Enjoy :)
   you run wakeword_detection.py
   Please say "Alexa". It will play "DING" sound if detected it.
   You ask the question to Alexa in 5 seconds after detected.
-  
+
   This is work in progress.
   if you want to stop listening, use kill command to terminate python's process.
   ex: ) find pid of wakeword_detection.py and kill prosess

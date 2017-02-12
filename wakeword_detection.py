@@ -81,6 +81,12 @@ def stop():
         recorder.stop()
 
 
+def someone_detected():
+    play_beep(fname=DETECT_DING)
+    recorder.set_detection_state(False)
+    direct_send_to_alexa('resources/visitor.wav')
+
+
 recorder = Recorder()
 models = ["resources/alexa.umdl", "resources/go_back.pmdl", "resources/go_out.pmdl", "resources/Stop.pmdl"]
 callbacks = [alexa, go_back, go_out, stop]
@@ -90,4 +96,5 @@ alexa_device = Device(recorder=recorder)
 # main loop
 detector.start(detected_callback=callbacks,
                interrupt_check=interrupt_callback,
-               sleep_time=0.03)
+               sleep_time=0.03,
+               sensor_detect_callback=someone_detected)
