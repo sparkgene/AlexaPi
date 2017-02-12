@@ -64,7 +64,7 @@ class Device:
         if audio is not None:
             with open("response.mp3", 'w') as f:
                 f.write(audio)
-            cmd = "mpg123 -q %s1sec.mp3 %sresponse.mp3" % (self.__path, self.__path)
+            cmd = "mpg321 -q %s1sec.mp3 %sresponse.mp3" % (self.__path, self.__path)
             subprocess.call(cmd.strip().split(' '))
 
         if self.__avs.is_expect_speech():
