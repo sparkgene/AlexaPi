@@ -91,9 +91,9 @@ recorder = Recorder()
 models = [
     "resources/alexa.umdl",
     "resources/go_back.pmdl",
-    "resources/secual_tadaima.pmdl",
+    "resources/tadaima.pmdl",
     "resources/go_out.pmdl",
-    "resources/secual_ittekimasu.pmdl",
+    "resources/ittekimasu.pmdl",
     "resources/Stop.pmdl"]
 callbacks = [alexa, go_back, go_back, go_out, go_out, stop]
 detector = snowboydecoder.HotwordDetector(models, sensitivity=0.5, recorder=recorder)
