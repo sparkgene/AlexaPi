@@ -94,15 +94,16 @@ class HotwordDetector(object):
                 ans = 0
 
             if ans == -1:
-                logger.warning("Error initializing streams or reading audio data")
+                message = "Error initializing streams or reading audio data"
             elif ans > 0:
                 message = "Keyword " + str(ans) + " detected at time: "
-                message += time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
-                logger.info(message)
+                # message += time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
                 detected_callback[ans-1]()
             elif detect_from_sensor == 1:
                 message = "Sensor detected " + str(ans) + " detected at time: "
                 sensor_detect_callback()
+
+            logger.info(message)
 
         logger.debug("finished.")
 
