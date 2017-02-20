@@ -88,8 +88,14 @@ def someone_detected():
 
 
 recorder = Recorder()
-models = ["resources/alexa.umdl", "resources/go_back.pmdl", "resources/go_out.pmdl", "resources/Stop.pmdl"]
-callbacks = [alexa, go_back, go_out, stop]
+models = [
+    "resources/alexa.umdl",
+    "resources/go_back.pmdl",
+    "resources/secual_tadaima.pmdl",
+    "resources/go_out.pmdl",
+    "resources/secual_ittekimasu.pmdl",
+    "resources/Stop.pmdl"]
+callbacks = [alexa, go_back, go_back, go_out, go_out, stop]
 detector = snowboydecoder.HotwordDetector(models, sensitivity=0.5, recorder=recorder)
 alexa_device = Device(recorder=recorder)
 
