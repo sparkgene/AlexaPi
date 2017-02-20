@@ -101,6 +101,7 @@ class HotwordDetector(object):
                 logger.info(message)
                 detected_callback[ans-1]()
             elif detect_from_sensor == 1:
+                message = "Sensor detected " + str(ans) + " detected at time: "
                 sensor_detect_callback()
 
         logger.debug("finished.")
