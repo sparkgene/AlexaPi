@@ -89,7 +89,7 @@ class HotwordDetector(object):
                     continue
                 ans = self.detector.RunDetection(data)
                 detect_from_sensor = GPIO.input(18)
-                logger.info(detect_from_sensor)
+                # logger.info(detect_from_sensor)
             else:
                 ans = 0
             time.sleep(sleep_time)
