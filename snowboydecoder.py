@@ -90,8 +90,8 @@ class HotwordDetector(object):
                 ans = self.detector.RunDetection(data)
                 detect_from_sensor = GPIO.input(18)
             else:
-                time.sleep(sleep_time)
                 ans = 0
+            time.sleep(sleep_time)
 
             if ans == -1:
                 message = "Error initializing streams or reading audio data"
@@ -103,7 +103,7 @@ class HotwordDetector(object):
                 message = "Sensor detected " + str(ans) + " detected at time: "
                 sensor_detect_callback()
 
-            logger.info(message)
+            # logger.info(message)
 
         logger.debug("finished.")
 

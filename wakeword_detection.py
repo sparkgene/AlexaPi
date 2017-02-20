@@ -102,5 +102,5 @@ alexa_device = Device(recorder=recorder)
 # main loop
 detector.start(detected_callback=callbacks,
                interrupt_check=interrupt_callback,
-               sleep_time=0.03,
+               sleep_time=0.10,
                sensor_detect_callback=someone_detected)
