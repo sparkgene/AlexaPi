@@ -99,8 +99,13 @@ callbacks = [alexa, go_back, go_back, go_out, go_out, stop]
 detector = snowboydecoder.HotwordDetector(models, sensitivity=0.5, recorder=recorder)
 alexa_device = Device(recorder=recorder)
 
-# main loop
-detector.start(detected_callback=callbacks,
-               interrupt_check=interrupt_callback,
-               sleep_time=0.03,
-               sensor_detect_callback=someone_detected)
+try:
+    # main loop
+    detector.start(detected_callback=callbacks,
+                   interrupt_check=interrupt_callback,
+                   sleep_time=0.03,
+                   sensor_detect_callback=someone_detected)
+except KeyboardInterrupt:
+    detector.terminate()
+    alexa_device.stop()
+    recorder.stop()
