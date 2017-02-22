@@ -44,7 +44,7 @@ class Device:
         if state == DeviceState.IDLE or state == DeviceState.EXPECTING_SPEECH:
             self.__device_state.set_state(DeviceState.RECOGNIZING)
 
-            print("[STATE:DEVICE] recording started 3 seconds")
+            print("[STATE:DEVICE] recording started 3  seconds")
             time.sleep(3.0)
             print("[STATE:DEVICE] recording end")
             audio = self.recorder.get_data()
