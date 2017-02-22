@@ -106,6 +106,8 @@ try:
                    sleep_time=0.03,
                    sensor_detect_callback=someone_detected)
 except KeyboardInterrupt:
+    print("ctrl-c")
+finally:
     detector.terminate()
     alexa_device.stop()
     recorder.stop()
