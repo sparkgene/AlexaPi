@@ -4,7 +4,6 @@
 import requests
 from hyper import HTTP20Connection
 import json
-from avs_context import AvsContext
 import threading
 from creds import *
 import time
