@@ -58,20 +58,6 @@ def alexa():
     alexa_device.recording()
 
 
-def go_back():
-    play_beep(fname=DETECT_DING)
-    print("[STATE:WAKE] detected go back")
-    recorder.set_detection_state(False)
-    direct_send_to_alexa('resources/homecoming.wav')
-
-
-def go_out():
-    play_beep(fname=DETECT_DING)
-    print("[STATE:WAKE] detected going out")
-    recorder.set_detection_state(False)
-    direct_send_to_alexa('resources/go_out.wav')
-
-
 def stop():
     play_beep(fname=DETECT_DONG)
     print("[STATE:WAKE] detected stop")
@@ -81,21 +67,11 @@ def stop():
         recorder.stop()
 
 
-def someone_detected():
-    play_beep(fname=DETECT_DING)
-    recorder.set_detection_state(False)
-    direct_send_to_alexa('resources/visitor.wav')
-
-
 recorder = Recorder()
 models = [
     "resources/alexa.umdl",
-    "resources/go_back.pmdl",
-    "resources/tadaima.pmdl",
-    "resources/go_out.pmdl",
-    "resources/ittekimasu.pmdl",
     "resources/Stop.pmdl"]
-callbacks = [alexa, go_back, go_back, go_out, go_out, stop]
+callbacks = [alexa, stop]
 detector = snowboydecoder.HotwordDetector(models, sensitivity=0.5, recorder=recorder)
 alexa_device = Device(recorder=recorder)
 
@@ -103,8 +79,7 @@ try:
     # main loop
     detector.start(detected_callback=callbacks,
                    interrupt_check=interrupt_callback,
-                   sleep_time=0.03,
-                   sensor_detect_callback=someone_detected)
+                   sleep_time=0.03)
 except KeyboardInterrupt:
     print("ctrl-c")
 finally:

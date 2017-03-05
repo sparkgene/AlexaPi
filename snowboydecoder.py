@@ -55,8 +55,7 @@ class HotwordDetector(object):
 
     def start(self, detected_callback=None,
               interrupt_check=lambda: False,
-              sleep_time=0.03,
-              sensor_detect_callback=None):
+              sleep_time=0.03):
 
         if interrupt_check():
             logger.debug("detect voice return")
@@ -88,8 +87,6 @@ class HotwordDetector(object):
                     time.sleep(sleep_time)
                     continue
                 ans = self.detector.RunDetection(data)
-                detect_from_sensor = GPIO.input(18)
-                # logger.info(detect_from_sensor)
             else:
                 ans = 0
             time.sleep(sleep_time)
@@ -100,9 +97,6 @@ class HotwordDetector(object):
                 message = "Keyword " + str(ans) + " detected at time: "
                 # message += time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
                 detected_callback[ans-1]()
-            elif detect_from_sensor == 1:
-                message = "Sensor detected " + str(ans) + " detected at time: "
-                sensor_detect_callback()
 
             # logger.info(message)
 
